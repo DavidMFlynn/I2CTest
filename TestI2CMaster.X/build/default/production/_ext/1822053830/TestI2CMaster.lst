@@ -1,0 +1,2478 @@
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;====================================================================================================
+                      00002 ;
+                      00003 ;   Filename:   TestI2CMaster.asm
+                      00004 ;   Date:       9/7/2015
+                      00005 ;   File Version:       1.0d2
+                      00006 ;
+                      00007 ;    Author:    David M. Flynn
+                      00008 ;    Company:   Oxford V.U.E., Inc.
+                      00009 ;    E-Mail:    dflynn@oxfordvue.com
+                      00010 ;    Web Site:  http://www.oxfordvue.com/
+                      00011 ;
+                      00012 ;====================================================================================================
+                      00013 ;    I2C Example for PIC12F1822 sample projects
+                      00014 ;
+                      00015 ;    History:
+                      00016 ;
+                      00017 ; 1.0d2  9/7/2015       Multi-Slave support.
+                      00018 ; 1.0d1  4/23/2015      First code
+                      00019 ;
+                      00020 ;====================================================================================================
+                      00021 ; Options
+                      00022 ;
+                      00023 ;====================================================================================================
+                      00024 ;====================================================================================================
+                      00025 ; What happens next:
+                      00026 ;
+                      00027 ;   The system LED blinks once per second
+                      00028 ;   Once at power-up: read RA3
+                      00029 ;    if RA3 is high (Btn not active) enable I2C comms mode
+                      00030 ;    else enable setup mode and buttons
+                      00031 ;
+                      00032 ;
+                      00033 ;  Communications:
+                      00034 ;     Send state of SW_1 to remote.
+                      00035 ;     Receive remote SW_1 and light LED_1
+                      00036 ;
+                      00037 ;
+                      00038 ;====================================================================================================
+                      00039 ;
+                      00040 ;  Pin 1 VDD (+5V)              +5V
+                      00041 ;  Pin 2 RA5            LED_1 (Active high output)
+                      00042 ;  Pin 3 RA4            System LED Active Low/Center switch Active Low
+                      00043 ;  Pin 4 RA3/MCLR*/Vpp (Input only)     SW_1  (Active Low input)
+                      00044 ;  Pin 5 RA2            SDA
+                      00045 ;  Pin 6 RA1/ICSPCLK            SCL
+                      00046 ;  Pin 7 RA0/ICSPDAT/AN0
+                      00047 ;  Pin 8 VSS (Ground)           Ground
+                      00048 ;
+                      00049 ;====================================================================================================
+                      00050 ;
+                      00051 ;
+                      00052         list    p=12f1822,r=hex,w=0     ; list directive to define processor
+                      00053 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; MPASM PIC12F1822 processor include
+                      00005 ;       
+                      00006 ; (c) Copyright 1999-2014 Microchip Technology, All rights reserved
+                      00007 ;==========================================================================
+                      00008 
+                      01039         LIST
+                      00056         list
+                      00057 ;
+Message[303]: Program word too large.  Truncated to core size. (EFA4)
+8007   2FA4           00058         __CONFIG _CONFIG1,_FOSC_INTOSC & _WDTE_OFF & _MCLRE_OFF & _IESO_OFF
+                      00059 ;
+                      00060 ;
+                      00061 ;
+                      00062 ; INTOSC oscillator: I/O function on CLKIN pin
+                      00063 ; WDT disabled
+                      00064 ; PWRT disabled
+                      00065 ; MCLR/VPP pin function is digital input
+                      00066 ; Program memory code protection is disabled
+                      00067 ; Data memory code protection is disabled
+                      00068 ; Brown-out Reset enabled
+                      00069 ; CLKOUT function is disabled. I/O or oscillator function on the CLKOUT pin
+                      00070 ; Internal/External Switchover mode is disabled
+                      00071 ; Fail-Safe Clock Monitor is enabled
+                      00072 ;
+Message[303]: Program word too large.  Truncated to core size. (DEFF)
+8008   1EFF           00073         __CONFIG _CONFIG2,_WRT_OFF & _PLLEN_OFF & _LVP_OFF
+                      00074 ;
+                      00075 ; Write protection off
+                      00076 ; 4x PLL disabled
+                      00077 ; Stack Overflow or Underflow will cause a Reset
+                      00078 ; Brown-out Reset Voltage (Vbor), low trip point selected.
+                      00079 ; Low-voltage programming Disabled ( allow MCLR to be digital in )
+                      00080 ;  *** must set apply Vdd before Vpp in ICD 3 settings ***
+                      00081 ;
+                      00082 ; '__CONFIG' directive is used to embed configuration data within .asm file.
+                      00083 ; The lables following the directive are located in the respective .inc file.
+                      00084 ; See respective data sheet for additional information on configuration word.
+                      00085 ;
+  0000                00086         constant        oldCode=0
+  0000                00087         constant        useRS232=0
+                      00088 ;
+                      00089 #Define _C      STATUS,C
+                      00090 #Define _Z      STATUS,Z
+                      00091 ;
+                      00092 ;
+                      00093 ;====================================================================================================
+                      00096         list
+                      00097 ;
+                      00098 ;    Port A bits
+  000000CF            00099 PortADDRBits    EQU     b'11001111'
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  3
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00100 #Define SystemLED       LATA,4  ;Output: 0=LED ON, Input: 0 = Switch Pressed
+                      00101 #Define SysLEDTrisBit   TRISA,4
+                      00102 #Define SW1BtnBit       PORTA,3
+                      00103 #Define LED1Bit LATA,5
+                      00104 ;
+  00000000            00105 PortAValue      EQU     b'00000000'
+                      00106 ;
+                      00107 ;====================================================================================================
+                      00108 ;====================================================================================================
+                      00109 ;
+                      00110 ;Constants
+  000000FF            00111 All_In  EQU     0xFF
+  00000000            00112 All_Out EQU     0x00
+                      00113 ;
+  000000B2            00114 TMR0Val EQU     0xB2    ;0xB2=100Hz, 0.000128S/Count
+  00000064            00115 LEDTIME EQU     d'100'  ;1.00 seconds
+  0000000A            00116 LEDErrorTime    EQU     d'10'
+  000000C8            00117 kWDTime EQU     d'200'  ;2 seconds
+                      00118 ;
+  00000001            00119 T1CON_Val       EQU     b'00000001'     ;PreScale=1,Fosc/4,Timer ON
+                      00120 ;
+                      00121 ;
+  0000000A            00122 DebounceTime    EQU     d'10'
+                      00123 ;
+                      00124 ;================================================================================================
+                      00125 ;***** VARIABLE DEFINITIONS
+                      00126 ; there are 128 bytes of ram, Bank0 0x20..0x7F, Bank1 0xA0..0xBF
+                      00127 ; there are 256 bytes of EEPROM starting at 0x00 the EEPROM is not mapped into memory but
+                      00128 ;  accessed through the EEADR and EEDATA registers
+                      00129 ;================================================================================================
+                      00130 ;  Bank0 Ram 020h-06Fh 80 Bytes
+                      00131 ;
+                      00132         cblock  0x20
+                      00133 ;
+  00000020            00134         ISR_Temp                ;scratch mem
+  00000021            00135         LED_Time        
+  00000022            00136         lastc           ;part of tickcount timmer
+  00000023            00137         tickcount               ;Timer tick count
+                      00138 ;
+                      00139 ;
+  00000024            00140         EEAddrTemp              ;EEProm address to read or write
+  00000025            00141         EEDataTemp              ;Data to be writen to EEProm
+                      00142 ;
+                      00143 ;
+  00000026            00144         Timer1Lo                ;1st 16 bit timer
+  00000027            00145         Timer1Hi                ; one second RX timeiout
+                      00146 ;
+  00000028            00147         Timer2Lo                ;2nd 16 bit timer
+  00000029            00148         Timer2Hi                ;
+                      00149 ;
+  0000002A            00150         Timer3Lo                ;3rd 16 bit timer
+  0000002B            00151         Timer3Hi                ;GP wait timer
+                      00152 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  4
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000002C            00153         Timer4Lo                ;4th 16 bit timer
+  0000002D            00154         Timer4Hi                ; debounce timer
+                      00155 ;
+  0000002E            00156         SysFlags
+  0000002F            00157         I2C_Slave_Idx           ;0..I2C_SlaveCount-1
+  00000030            00158         I2C_Temp                ;I2C Temp Var
+                      00159 ;
+                      00160         endc
+                      00161 ;
+                      00162 ;TimerI2C       EQU     Timer1Lo
+                      00163 ;
+                      00164 ;
+  00000003            00165 I2C_SlaveCount  EQU     .3
+  00000004            00166 RX_ELEMENTS     EQU     .4      ; number of allowable array elements
+                      00167 ;Note: only upper 7 bits of address are used
+  00000030            00168 I2C_ADDRESS     EQU     0x30    ; slave address
+  00000027            00169 BRG_VAL EQU     0x27    ; baud rate setting = 100kHz
+  000000AA            00170 I2C_TX_Init_Val EQU     0xAA    ; value to load into transmit array to send to master
+  000000AA            00171 I2C_RX_Init_Val EQU     0xAA    ; value to load into received data array
+                      00172 ;
+                      00173 ;================================================================================================
+                      00174 ;  Bank1 Ram 0A0h-0BFh 32 Bytes
+                      00175 ;
+                      00176 ;
+                      00177 I2C_Buffers     udata   0xA0
+00A0                  00178 I2C_ARRAY_TX    RES     RX_ELEMENTS*I2C_SlaveCount      ; array to transmit to master
+00AC                  00179 I2C_ARRAY_RX    RES     RX_ELEMENTS*I2C_SlaveCount      ; array to receive from master
+                      00180 ;
+                      00181 ;=======================================================================================================
+                      00182 ;  Common Ram 70-7F same for all banks
+                      00183 ;      except for ISR_W_Temp these are used for paramiter passing and temp vars
+                      00184 ;=======================================================================================================
+                      00185 ;
+                      00186         cblock  0x70
+  00000070            00187         Param70
+  00000071            00188         Param71
+  00000072            00189         Param72
+                      00190 ;-------------
+                      00191 ;Globals from I2C_Master.inc
+  00000073            00192         INDEX_I2C       ; index used to point to array location
+                      00193                 ;   0..RX_ELEMENTS-1
+  00000074            00194         GFlags
+  00000075            00195         GFlags2
+  00000076            00196         GFlags3
+                      00197 ;-------------
+  00000077            00198         Param77
+  00000078            00199         Param78
+  00000079            00200         Param79
+  0000007A            00201         Param7A
+  0000007B            00202         Param7B
+  0000007C            00203         Param7C
+  0000007D            00204         Param7D
+  0000007E            00205         Param7E
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  5
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+  0000007F            00206         Param7F
+                      00207         endc
+                      00208 ;
+                      00209 ; Flags bits
+                      00210 ;
+                      00211 #Define I2C_TXLocked    GFlags,0        ; Set/cleared by ISR, data is being sent
+                      00212 #Define I2C_RXLocked    GFlags,1        ; Set/cleared by ISR, data is being received
+                      00213 #Define I2C_SET_ACKEN   GFlags,2        ; sets up acknowledge sequence
+                      00214 #Define I2C_Init_Start  GFlags,3        ; used to set bit for start sequence
+                      00215 #Define I2C_Write_Seq_Active    GFlags,4        ; used for write sequence
+                      00216 #Define I2C_Stop_Asserted       GFlags,5        ; used to set bit for stop sequence
+                      00217 #Define I2C_Addr_Pending        GFlags,6        ; bit sets up address transmission
+                      00218 #Define I2C_INIT_TRANS_DATA     GFlags,7        ; bit sets up data transmission
+                      00219 #Define I2C_TRANS_DATA  GFlags2,0       ; used to monitor transmission
+                      00220 #Define I2C_TRANS_COMPLETE      GFlags2,1       ; set when transmission is complete
+                      00221 #Define I2C_REC_COMPLETE        GFlags2,2       ; set when reception is complete
+                      00222 #Define I2C_Read_Seq_Active     GFlags2,3       ; used for read sequence
+                      00223 #Define I2C_INIT_MSTR_REC       GFlags2,4       ; initializes reception
+                      00224 #Define I2C_SET_RCEN    GFlags2,5       ; initializes RCEN bit to receive data
+                      00225 #Define I2C_REC_BYTE    GFlags2,6       ; sets up receive byte sequence
+                      00226 #Define I2C_Recd_All    GFlags2,7       ; Set when all bytes heve been rec'd waiting for ack before stop
+                      00227 #Define I2C_NewRXData   GFlags3,0       ; Set by ISR, The new data is here!
+                      00228 #Define I2C_NewDataToTX GFlags3,1       ; set in main to cause send now
+                      00229 ;
+                      00230 ;=========================================================================================
+                      00231 ;Conditionals
+  00000080            00232 HasISR  EQU     0x80    ;used to enable interupts 0x80=true 0x00=false
+                      00233 ;
+                      00234 ;=========================================================================================
+                      00235 ;==============================================================================================
+                      00236 ; ID Locations
+8000   0001 0000 000D 00237         __idlocs        0x10d2
+       0002 
+                      00238 ;
+                      00239 ;==============================================================================================
+                      00240 ;============================================================================================
+                      00241 ;
+                      00242 ;
+                      00243         ORG     0x000   ; processor reset vector
+0000   0183           00244         CLRF    STATUS
+0001   018A           00245         CLRF    PCLATH
+0002   2???           00246         goto    start   ; go to beginning of program
+                      00247 ;
+                      00248 ;===============================================================================================
+                      00249 ; Interupt Service Routine
+                      00250 ;
+                      00251 ; we loop through the interupt service routing every 0.008192 seconds
+                      00252 ;
+                      00253 ;
+                      00254         ORG     0x004   ; interrupt vector location
+0004   0188           00255         CLRF    BSR     ; bank0
+                      00256 ;
+                      00257 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  6
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0005   1D0B           00258         btfss   INTCON,T0IF
+0006   2???           00259         goto    IRQ_2
+                      00260 ;
+0007   30B2           00261         movlw   TMR0Val ;256x39+16 cycles (10,000uS)
+0008   0795           00262         addwf   TMR0,F  ; reload TMR0 with -40
+0009   110B           00263         bcf     INTCON,T0IF     ; reset interupt flag bit
+                      00264 ;
+                      00265 ;Decrement timers until they are zero
+                      00266 ; 
+000A   2???           00267         call    DecTimer1       ;if timer 1 is not zero decrement
+000B   2???           00268         call    DecTimer2
+000C   2???           00269         call    DecTimer3
+000D   2???           00270         call    DecTimer4
+                      00271 ;
+                      00272 ;-----------------------------------------------------------------
+                      00273 ; blink LEDs
+000E   0021           00274         BankSel TRISA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+000F   160C           00275         BSF     SysLEDTrisBit   ;LED off
+                      00276 ;
+                      00277 ;
+0010   0020           00278         movlb   0
+0011   08A3           00279         MOVF    tickcount,F
+0012   1903           00280         SKPNZ
+0013   2???           00281         GOTO    SystemBlinkDone
+0014   03A3           00282         DECF    tickcount,F
+0015   1903           00283         SKPNZ
+0016   2???           00284         CALL    ToggleSysLED
+0017   2???           00285         GOTO    SystemBlink_end
+                      00286 ;
+0018   08A1           00287 SystemBlinkDone MOVF    LED_Time,F
+0019   1D03           00288         SKPZ
+001A   2???           00289         CAll    ToggleSysLED
+                      00290 ;
+001B                  00291 SystemBlink_end 
+                      00292 ;
+                      00293 ;-----------------------------------------------------------------
+                      00294 ;
+001B                  00295 IRQ_2:
+                      00296 ;==================================================================================
+                      00297 ;-----------------------------------------------------------------------------------------
+                      00298 ; I2C Com
+001B   0020           00299 IRQ_4   MOVLB   0x00
+001C   1D91           00300         btfss   PIR1,SSP1IF     ; Is this a SSP interrupt?
+001D   2???           00301         goto    IRQ_4_End       ; if not, bus collision int occurred
+001E   1A74           00302         btfsc   I2C_Write_Seq_Active    ; is it a write sequence?
+001F   2???           00303         goto    I2C_Write       ; if so go here
+0020   19F5           00304         btfsc   I2C_Read_Seq_Active
+0021   2???           00305         goto    I2C_READ        ; if not, it is a read sequence
+0022                  00306 I2C_READ_Return:
+0022   0020           00307 I2C_Write_Return        movlb   0x00
+0023   1191           00308         bcf     PIR1,SSP1IF     ; clear the SSP interrupt flag
+0024                  00309 IRQ_4_End
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  7
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00310 ;-----------------------------------------------------------------------------------------
+                      00311 ; I2C Bus Collision
+0024   0020           00312 IRQ_5   MOVLB   0x00
+0025   1D92           00313         btfss   PIR2,BCL1IF
+0026   2???           00314         goto    IRQ_5_End
+0027   0024           00315         movlb   0x04    ;banksel SSPBUF                                         
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0028   0191           00316         clrf    SSP1BUF ; clear the SSP buffer
+0029   0020           00317         movlb   0x00    ;banksel PIR2
+002A   1192           00318         bcf     PIR2,BCL1IF     ; clear the SSP interrupt flag  
+                      00319 ;
+002B                  00320 IRQ_5_End
+                      00321 ;
+                      00322 ;--------------------------------------------------------------------
+                      00323 ;
+002B   0009           00324         retfie          ; return from interrupt
+                      00325 ;
+                      00326 ;
+                      00327 ;==============================================================================================
+                      00328 ;==============================================================================================
+                      00329 ; This routine runs every 1/2 second. Unless an error is active then every 1/10th
+                      00330 ;
+002C   0821           00331 ToggleSysLED    MOVF    LED_Time,W
+002D   00A3           00332         MOVWF   tickcount
+002E   0021           00333         BankSel TRISA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+002F   120C           00334         BCF     SysLEDTrisBit   ;LED on
+0030   0020           00335         MOVLB   0
+0031   0008           00336         RETURN
+                      00337 ;
+                      00338 ;==============================================================================================
+                      00339 ;==============================================================================================
+                      00340 ;
+                      00341         include I2C_MASTER.inc
+                      00001 ;=========================================================================================
+                      00002 ; PIC16F1822
+                      00003 ; I2C MASTER DRIVER CODE
+                      00004 ;
+                      00005 ;    Filename:      I2C MASTER.inc
+                      00006 ;    Date:          11/3/2015
+                      00007 ;    File Version:  1.0.4
+                      00008 ;
+                      00009 ;    Author:        David M. Flynn
+                      00010 ;    Company:       Oxford V.U.E., Inc.
+                      00011 ;    E-Mail:        dflynn@oxfordvue.com
+                      00012 ;    Web Site:      http://www.oxfordvue.com/
+                      00013 ;
+                      00014 ;=========================================================================================
+                      00015 ;   I2C Master Driver Code for PIC16F1822
+                      00016 ;
+                      00017 ;    History:
+                      00018 ;
+                      00019 ; 1.0.4  11/4/2015      Bug fixes.
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  8
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00020 ; 1.0.3  9/7/2015       Added multi-Slave.
+                      00021 ; 1.0.2  4/25/2015      First woring version, single master to single slave, no error checking.
+                      00022 ; 1.0.1  9/4/2014       Modified for 12F1822
+                      00023 ; 1.0   11/23/2013      Adapted from AN734C
+                      00024 ;
+                      00025 ; Known issues:
+                      00026 ;  Not checking ACK from slave after address.
+                      00027 ;  Address is hard coded.
+                      00028 ;
+                      00029 ; *** Adapted from AN734C ****
+                      00030 ; PIC16F1937 
+                      00031 ;I2C MASTER DRIVER CODE 
+                      00032 ;Author: Chris Best 
+                      00033 ;Microchip Technologies
+                      00034 ;DATE: 07/03/2013
+                      00035 ;
+                      00036 ;=========================================================================================
+                      00037 ; Options
+                      00038 ;
+                      00039 ;   I2C_ADDRESS and RX_ELEMENTS must be set and be the same in the slave driver.
+                      00040 ;
+                      00041 ;=========================================================================================
+                      00042 ;=========================================================================================
+                      00043 ; What happens next:
+                      00044 ;  Sends and receives RX_ELEMENTS bytes of data to/from the slave
+                      00045 ;
+                      00046 ;INITIALIZE_I2C
+                      00047 ; start write seq.      Set I2C_Write_Seq_Active, I2C_Init_Start, I2C_Addr_Pending, INDEX_I2C=0
+                      00048 ;Idle_I2C
+                      00049 ; set start bit clr I2C_Init_Start
+                      00050 ;I2C_WRITE
+                      00051 ; send address  clr I2C_Addr_Pending set I2C_INIT_TRANS_DATA
+                      00052 ;Idle_I2C
+                      00053 ;       clr I2C_INIT_TRANS_DATA set I2C_TRANS_DATA, I2C_TXLocked
+                      00054 ;I2C_WRITE
+                      00055 ; send I2C_ARRAY_TX,INDEX_I2C++ until RX_ELEMENTS bytes sent
+                      00056 ;       clr I2C_TRANS_DATA set I2C_TRANS_COMPLETE
+                      00057 ;Idle_I2C
+                      00058 ; send stop bit clr I2C_TRANS_COMPLETE set I2C_Stop_Asserted
+                      00059 ;I2C_WRITE
+                      00060 ;       clr I2C_Write_Seq_Active, I2C_Stop_Asserted, I2C_TXLocked
+                      00061 ;
+                      00062 ;Idle_I2C
+                      00063 ; start read seq.       set I2C_Read_Seq_Active, I2C_Addr_Pending, I2C_Init_Start
+                      00064 ;Idle_I2C
+                      00065 ; send start bit        clr I2C_Init_Start
+                      00066 ;I2C_READ
+                      00067 ; send address  clr I2C_Addr_Pending set I2C_INIT_MSTR_REC
+                      00068 ;Idle_I2C
+                      00069 ;       clr I2C_INIT_MSTR_REC set I2C_SET_RCEN, I2C_RXLocked, INDEX_I2C=0
+                      00070 ;
+                      00071 ;I2C_READ
+                      00072 ; enable receive        clr I2C_SET_RCEN set I2C_REC_BYTE
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  9
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00073 ;I2C_READ
+                      00074 ; read byte     clr I2C_REC_BYTE set I2C_SET_ACKEN
+                      00075 ;Idle_I2C
+                      00076 ; sent ack      clr I2C_SET_ACKEN, INDEX_I2C++
+                      00077 ;       if INDEX_I2C<RX_ELEMENTS then set I2C_SET_RCEN else set I2C_Recd_All
+                      00078 ;
+                      00079 ;I2C_READ
+                      00080 ;       clr I2C_Recd_All, I2C_RXLocked set I2C_NewRXData, I2C_REC_COMPLETE
+                      00081 ;Idle_I2C
+                      00082 ; send stop     clr I2C_REC_COMPLETE set I2C_Stop_Asserted
+                      00083 ;I2C_READ
+                      00084 ;       clr I2C_Stop_Asserted, I2C_Read_Seq_Active
+                      00085 ;
+                      00086 ;Idle_I2C
+                      00087 ;       call I2C_Start_Write_Seq or I2C_Start_Read_Seq
+                      00088 ;=========================================================================================
+                      00089 ; Routines:     
+                      00090 ;
+                      00091 ; Init_I2C      initial setup, call once before starting main event loop
+                      00092 ; Idle_I2C      Sequence control, call from main event loop
+                      00093 ; I2C_WRITE     called by ISR to handle interupts while writing to slave
+                      00094 ; I2C_READ      called by ISR to handle interupts while reading from slave
+                      00095 ;
+                      00096 ;=========================================================================================
+                      00097 ;
+                      00098 ;I2C_SlaveCount EQU     .3
+                      00099 ;RX_ELEMENTS    EQU     .8      ; number of allowable array elements
+                      00100 ;Note: only upper 7 bits of address are used
+                      00101 ;I2C_ADDRESS    EQU     0x30    ; slave address
+                      00102 ;BRG_VAL        EQU     0x27    ; baud rate setting = 100kHz
+                      00103 ;I2C_TX_Init_Val        EQU     0xAA    ; value to load into transmit array to send to master
+                      00104 ;I2C_RX_Init_Val        EQU     0xAA    ; value to load into received data array
+                      00105 ;
+                      00106 ;
+                      00107 ;------------------------------------ variables-------------------------------------------
+                      00108 ;       I2C_Slave_Idx           ;0..I2C_SlaveCount-1
+                      00109 ;       I2C_Temp                ;temp var
+                      00110 ;
+                      00111 ;       cblock  0x70                                                                    ; set up in shar
+                            ed memory for easy access
+                      00112 ;       INDEX_I2C               ; index used to point to array location
+                      00113 ;                       ;   0..RX_ELEMENTS-1    
+                      00114 ;       GFlags
+                      00115 ;       GFlags2
+                      00116 ;       GFlags3
+                      00117 ;       endc
+                      00118 ;
+                      00119 ;#Define        I2C_TXLocked    GFlags,0        ; Set/cleared by ISR, data is being sent
+                      00120 ;#Define        I2C_RXLocked    GFlags,1        ; Set/cleared by ISR, data is being received
+                      00121 ;#Define        I2C_SET_ACKEN   GFlags,2        ; sets up acknowledge sequence
+                      00122 ;#Define        I2C_Init_Start  GFlags,3        ; used to set bit for start sequence
+                      00123 ;#Define        I2C_Write_Seq_Active    GFlags,4        ; used for write sequence
+                      00124 ;#Define        I2C_Stop_Asserted       GFlags,5        ; used to set bit for stop sequence
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 10
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00125 ;#Define        I2C_Addr_Pending        GFlags,6        ; bit sets up address transmission
+                      00126 ;#Define        I2C_INIT_TRANS_DATA     GFlags,7        ; bit sets up data transmission
+                      00127 ;#Define        I2C_TRANS_DATA  GFlags2,0       ; used to monitor transmission
+                      00128 ;#Define        I2C_TRANS_COMPLETE      GFlags2,1       ; set when transmission is complete
+                      00129 ;#Define        I2C_REC_COMPLETE        GFlags2,2       ; set when reception is complete
+                      00130 ;#Define        I2C_Read_Seq_Active     GFlags2,3       ; used for read sequence
+                      00131 ;#Define        I2C_INIT_MSTR_REC       GFlags2,4       ; initializes reception
+                      00132 ;#Define        I2C_SET_RCEN    GFlags2,5       ; initializes RCEN bit to receive data
+                      00133 ;#Define        I2C_REC_BYTE    GFlags2,6       ; sets up receive byte sequence
+                      00134 ;#Define        I2C_Recd_All    GFlags2,7       ; Set when all bytes heve been rec'd waiting for ack bef
+                            ore stop
+                      00135 ;#Define        I2C_NewRXData   GFlags3,0       ; Set by ISR, The new data is here!
+                      00136 ;#Define        I2C_NewDataToTX GFlags3,1       ; set in main to cause send now
+                      00137 ;       udata
+                      00138 ;
+                      00139 ; array to transmit to slaves
+                      00140 ;I2C_ARRAY_TX   res     RX_ELEMENTS*I2C_SlaveCount
+                      00141 ; array to receive from slaves
+                      00142 ;I2C_ARRAY_RX   res     RX_ELEMENTS*I2C_SlaveCount      
+                      00143 ;
+                      00144 ;
+                      00145 ;=========================================================================================
+                      00146 ;
+                      00147 ;LOADFSR1       macro   ADDRESS,INDEX   ; ADDRESS = I2C_ARRAY, INDEX = INDEX_I2C                        
+                      00148 ;       movlw   low ADDRESS     ; load address                          
+                      00149 ;       addwf   INDEX,W ; add the index value to determine location in array
+                      00150 ;       movwf   FSR1L   ; load FSR1L with pointer info
+                      00151 ;       movlw   high ADDRESS
+                      00152 ;       movwf   FSR1H
+                      00153 ;       endm
+                      00154 ;
+                      00155 ;=========================================================================================
+                      00156 ;----------------------------------- interrupt service routine ---------------------------
+                      00157 ;
+                      00158 ;IRQ_4  MOVLB   0x00
+                      00159 ;       btfss   PIR1,SSP1IF     ; Is this a SSP interrupt?
+                      00160 ;       goto    IRQ_4_End       ; if not, bus collision int occurred
+                      00161 ;       btfsc   I2C_Write_Seq_Active    ; is it a write sequence?
+                      00162 ;       goto    I2C_Write       ; if so go here
+                      00163 ;       goto    I2C_READ        ; if not, it is a read sequence
+                      00164 ;I2C_READ_Return:
+                      00165 ;I2C_Write_Return       movlb   0x00
+                      00166 ;       bcf     PIR1,SSP1IF     ; clear the SSP interrupt flag
+                      00167 ;IRQ_4_End
+                      00168 ;
+                      00169 ;-----------------------------------------------------------------------------------------
+                      00170 ; I2C Bus Collision
+                      00171 ;IRQ_5  MOVLB   0x00
+                      00172 ;       btfss   PIR2,BCL1IF
+                      00173 ;       goto    IRQ_5_End
+                      00174 ;       movlb   0x04    ;banksel SSPBUF                                         
+                      00175 ;       clrf    SSP1BUF ; clear the SSP buffer
+                      00176 ;       movlb   0x00    ;banksel PIR2
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 11
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00177 ;       bcf     PIR2,BCL1IF     ; clear the SSP interrupt flag  
+                      00178 ;
+                      00179 ;IRQ_5_End
+                      00180 ;
+                      00181 ;=========================================================================================
+                      00182 ;=========================================================================================
+                      00183 ;       Main
+                      00184 ;-----------------------------------------------------------------------------------------
+                      00185 ;
+                      00186 ;       call    INITIALIZE_I2C  ; set up uC
+                      00187 ;
+                      00188 ;MainLoop
+                      00189 ;       call    Idle_I2C
+                      00190 ;=========================================================================================
+                      00191 ;
+0032   1E74           00192 Idle_I2C        btfss   I2C_Write_Seq_Active    ;Is it a write sequence?
+0033   2???           00193         goto    Idle_I2C_Read   ; No, try read
+0034   1DF4           00194         btfss   I2C_Init_Start  ;Is start bit set?
+0035   2???           00195         goto    Idle_I2C_Write_1        ; No, check if transmission ready
+0036   11F4           00196         bcf     I2C_Init_Start  ; Yes, clear flag, send start bit
+0037   0024           00197         banksel SSP1CON2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0038   1416           00198         bsf     SSP1CON2,SEN    ; set start enable bit
+0039   0020           00199 Idle_I2C_B0Rtn  movlb   0x00
+003A   0008           00200         return
+                      00201 ;
+                      00202 ; set up transmit sequence
+                      00203 ;
+003B   1FF4           00204 Idle_I2C_Write_1        btfss   I2C_INIT_TRANS_DATA     ;Is bit set?
+003C   2???           00205         goto    Idle_I2C_Write_2        ; if not, transmit of data complete
+003D   13F4           00206         bcf     I2C_INIT_TRANS_DATA     ; if so, clear bit
+003E   1475           00207         bsf     I2C_TRANS_DATA  ; set bit for transmission seq in INT routine
+003F   1474           00208         bsf     I2C_TXLocked    ; lock the data
+0040   0008           00209         return
+                      00210 ;
+                      00211 ; set up stop sequence
+                      00212 ;
+0041   1CF5           00213 Idle_I2C_Write_2        btfss   I2C_TRANS_COMPLETE      ;Is transmission complete?
+0042   0008           00214         return          ; No, go back to LOOP
+0043   10F5           00215         bcf     I2C_TRANS_COMPLETE      ;Clear transmission complete flag
+0044   16F4           00216         bsf     I2C_Stop_Asserted       ;Send a stop bit
+0045   0024           00217         banksel SSP1CON2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0046   1516           00218         bsf     SSP1CON2,PEN    ;Begin stop sequence
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0047   1916           00219         BTFSC   SSP1CON2,PEN    ;Has stop bit been sent?
+0048   2???           00220         GOTO    $-1     ; no, loop back to test again
+0049   2???           00221         goto    Idle_I2C_B0Rtn
+                      00222 ;
+                      00223 ;=========================================
+                      00224 ;  read sequence
+                      00225 ;
+004A   1DF5           00226 Idle_I2C_Read   btfss   I2C_Read_Seq_Active     ; make sure read sequence is set
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 12
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+004B   2???           00227         goto    I2C_StartSeq    ; if not, go start something
+004C   1DF4           00228         btfss   I2C_Init_Start  ; is start bit set?
+004D   2???           00229         goto    Idle_I2C_Read_1 ; if not, go get ready to read
+                      00230 ; Send start bit
+004E   11F4           00231         bcf     I2C_Init_Start  ; if so, clear bit
+004F   0024           00232         banksel SSPCON2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0050   1416           00233         bsf     SSPCON2,SEN     ; set SEN bit to begin start sequence
+0051   2???           00234         goto    Idle_I2C_B0Rtn
+                      00235 ;
+                      00236 ; get ready to receive data
+                      00237 ;
+0052   1E75           00238 Idle_I2C_Read_1 btfss   I2C_INIT_MSTR_REC       ; Receive first byte
+0053   2???           00239         goto    Idle_I2C_Read_2 ; No, go receive data
+0054   1275           00240         bcf     I2C_INIT_MSTR_REC       ; if so, clear bit
+0055   14F4           00241         bsf     I2C_RXLocked    ; lock the data
+0056   01F3           00242         clrf    INDEX_I2C
+0057   16F5           00243         bsf     I2C_SET_RCEN    ; set this to so in next INT RCEN is set
+0058   0008           00244         return
+                      00245 ;
+0059   1B75           00246 Idle_I2C_Read_2 btfsc   I2C_REC_BYTE    ;Waiting to receive data?
+005A   0008           00247         return          ; Yes
+                      00248 ;
+005B   1D74           00249 Idle_I2C_Read_3 btfss   I2C_SET_ACKEN   ; is bit set?
+005C   2???           00250         goto    Idle_I2C_Read_4 ; if not, finish read routines
+                      00251 ;
+005D   1174           00252         bcf     I2C_SET_ACKEN
+                      00253 ;
+005E   3004           00254         movlw   RX_ELEMENTS
+005F   0273           00255         subwf   INDEX_I2C,W     
+0060   1D03           00256         btfss   _Z      ; RX_ELEMENTS=INDEX_I2C?
+0061   16F5           00257         bsf     I2C_SET_RCEN    ; No, when ack is done read another byte
+0062   1903           00258         btfsc   _Z      ; RX_ELEMENTS=INDEX_I2C?
+0063   17F5           00259         bsf     I2C_Recd_All    ; Yes, we are ack'ing the last byte
+                      00260 ;
+0064   0024           00261         banksel SSP1CON2
+0065   1AF5           00262         BTFSC   I2C_SET_RCEN
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0066   1296           00263         bcf     SSP1CON2,ACKDT  ;send ACK
+0067   1BF5           00264         BTFSC   I2C_Recd_All
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0068   1696           00265         bsf     SSP1CON2,ACKDT  ;send NAK
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0069   1616           00266         bsf     SSP1CON2,ACKEN  ; if so, set ACK bit to acknowledge slave
+006A   2???           00267         goto    Idle_I2C_B0Rtn
+                      00268 ;
+                      00269 ; finish up read routine
+                      00270 ;
+006B   1D75           00271 Idle_I2C_Read_4 btfss   I2C_REC_COMPLETE        ; is bit set?
+006C   0008           00272         return          ; if not, go back to LOOP
+006D   16F4           00273         bsf     I2C_Stop_Asserted       ; if so, set up stop
+006E   1175           00274         bcf     I2C_REC_COMPLETE        ; clear receive complete bit
+006F   0024           00275         banksel SSP1CON2
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 13
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0070   1516           00276         bsf     SSP1CON2,PEN    ; set stop bit to begin stop sequence
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0071   1916           00277         BTFSC   SSP1CON2,PEN    ; has stop bit been sent?
+0072   2???           00278         GOTO    $-1     ; no, loop back to test
+0073   2???           00279         goto    Idle_I2C_B0Rtn
+                      00280 ;
+                      00281 ;==============================================
+                      00282 ;
+0074                  00283 I2C_StartSeq:
+0074   1CF6           00284         btfss   I2C_NewDataToTX
+0075   2???           00285         goto    I2C_Start_Read_Seq
+0076   2???           00286         goto    I2C_Start_Write_Seq
+                      00287 ;
+                      00288 ;=========================================================================================
+                      00289 ;       Initialize: Sets up register values
+                      00290 ;=========================================================================================
+                      00291 ; Entry: none
+                      00292 ; Exit: bank0
+                      00293 ; Calls: none
+                      00294 ; Ram used: none
+                      00295 ;
+0077                  00296 Init_I2C:
+                      00297 ; for J=0 to RX_ELEMENTS-1
+                      00298 ;  I2C_ARRAY_TX(J)=I2C_TX_Init_Val
+0077   30??           00299         movlw   low I2C_ARRAY_TX
+0078   0086           00300         movwf   FSR1L
+0079   30??           00301         movlw   high I2C_ARRAY_TX
+007A   0087           00302         movwf   FSR1H
+                      00303 ;
+007B   300C           00304         movlw   RX_ELEMENTS*I2C_SlaveCount
+007C   00F3           00305         movwf   INDEX_I2C       ;used as count not index
+007D   30AA           00306         movlw   I2C_TX_Init_Val
+007E   0081           00307 Init_I2C_L1     movwf   INDF1
+007F   0A86           00308         incf    FSR1L,F
+0080   0BF3           00309         decfsz  INDEX_I2C,F
+0081   2???           00310         goto    Init_I2C_L1
+                      00311 ;
+                      00312 ; for J=0 to RX_ELEMENTS-1
+                      00313 ;  I2C_ARRAY_RX(J)=I2C_RX_Init_Val
+0082   30??           00314         movlw   low I2C_ARRAY_RX
+0083   0086           00315         movwf   FSR1L
+0084   30??           00316         movlw   high I2C_ARRAY_RX
+0085   0087           00317         movwf   FSR1H
+                      00318 ;
+0086   300C           00319         movlw   RX_ELEMENTS*I2C_SlaveCount
+0087   00F3           00320         movwf   INDEX_I2C       ;used as count not index
+0088   30AA           00321         movlw   I2C_RX_Init_Val
+0089   0081           00322 Init_I2C_L2     movwf   INDF1
+008A   0A86           00323         incf    FSR1L,F
+008B   0BF3           00324         decfsz  INDEX_I2C,F
+008C   2???           00325         goto    Init_I2C_L2
+                      00326 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 14
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+008D   01F4           00327         CLRF    GFlags
+008E   01F5           00328         CLRF    GFlags2
+008F   01F6           00329         CLRF    GFlags3
+                      00330 ;
+                      00331 ;I2C set up
+0090   0024           00332         BANKSEL SSP1STAT
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0091   1794           00333         bsf     SSP1STAT,SMP    ; Slew rate control disabled for standard speed mode
+0092   3028           00334         movlw   b'00101000'     ; Enable serial port, I2C master mode, 7-bit address
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0093   0095           00335         movwf   SSP1CON1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0094   1597           00336         bsf     SSP1CON3,SDAHT  ; Minimum of 300 ns hold time
+0095   3027           00337         movlw   BRG_VAL ; load the baud rate value
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0096   0092           00338         movwf   SSP1ADD
+                      00339 
+0097   0021           00340         banksel PIE1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0098   1591           00341         bsf     PIE1,SSP1IE     ; enable SSP interrupts
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0099   1592           00342         bsf     PIE2,BCL1IE     ; enable SSP interrupts
+009A   0020           00343         movlb   0x00    ; banksel PIR1
+009B   1191           00344         bcf     PIR1,SSP1IF     ; clear the SSP interrupt flag
+009C   1192           00345         bcf     PIR2,BCL1IF     ; clear the SSP interrupt flag
+009D   0008           00346         return
+                      00347 ;
+                      00348 ;=======================================================
+                      00349 ; Stert write opperation
+009E   01F3           00350 I2C_Start_Write_Seq     clrf    INDEX_I2C       ; clear index
+009F   01F4           00351         CLRF    GFlags
+00A0   01F5           00352         CLRF    GFlags2
+00A1   15F4           00353         bsf     I2C_Init_Start  ; set start bit
+00A2   1674           00354         bsf     I2C_Write_Seq_Active    ; set WRITE bit
+00A3   1774           00355         bsf     I2C_Addr_Pending        ; set bit to ready write add seq.
+00A4   10F6           00356         bcf     I2C_NewDataToTX
+00A5   0008           00357         return
+                      00358 ;
+                      00359 ;======================================================
+                      00360 ; Start read opperation
+00A6   01F3           00361 I2C_Start_Read_Seq      clrf    INDEX_I2C       ; clear index
+00A7   01F4           00362         CLRF    GFlags
+00A8   01F5           00363         CLRF    GFlags2
+00A9   15F4           00364         bsf     I2C_Init_Start  ; set start bit
+00AA   1774           00365         bsf     I2C_Addr_Pending        ; sets up read address transmission
+00AB   15F5           00366         bsf     I2C_Read_Seq_Active     ; set read sequence bit
+00AC   0008           00367         return
+                      00368 ;
+                      00369 ;=========================================================================================
+                      00370 ;       Interrupt Service Routine (ISR)
+                      00371 ;=========================================================================================
+                      00372 ;
+                      00373 ; DATA TRANSMISSION SEQUENCE OF EVENTS
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 15
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00374 ;
+00AD   18F5           00375 I2C_Write       btfsc   I2C_TRANS_COMPLETE      ; is transmission complete?
+00AE   2???           00376         goto    I2C_Write_End   ; if so, finish transmission
+00AF   1F74           00377         btfss   I2C_Addr_Pending        ; if not, has trans add been sent?
+00B0   2???           00378         goto    I2C_Write_TXData        ; if so, go start to transmit
+00B1   1374           00379         bcf     I2C_Addr_Pending        ; if not, send trans add
+00B2   17F4           00380         bsf     I2C_INIT_TRANS_DATA
+00B3   2???           00381         call    I2C_GetSlaveAddr
+00B4   0024           00382         banksel SSP1BUF
+00B5   1009           00383         BCF     WREG,0  ; Set R/W* to Write
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00B6   0091           00384         movwf   SSP1BUF
+00B7   2???           00385         goto    I2C_Write_Return
+                      00386 ;
+                      00387 ;
+00B8   1C75           00388 I2C_Write_TXData        btfss   I2C_TRANS_DATA  ; is transmission complete?
+00B9   2???           00389         goto    I2C_Write_End   ; if so, go finish sequence
+                      00390 ;
+00BA   3004           00391         movlw   RX_ELEMENTS     ; load array elements value
+00BB   0273           00392         subwf   INDEX_I2C,W     ; if Z = 1, subtract index from number of elements
+00BC   1803           00393         btfsc   _C      ; did a carry occur after subtraction?
+00BD   2???           00394         goto    I2C_Write_1     ; if so, array limit reached
+                      00395 ;
+00BE   2???           00396         call    I2C_Set_TX_PTR
+00BF   0801           00397         movf    INDF1,W ; move value into W to load to SSP buffer
+00C0   0024           00398         banksel SSP1BUF
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00C1   0091           00399         movwf   SSP1BUF ; load SSP buffer
+00C2   0AF3           00400         incf    INDEX_I2C,F     ; increment INDEX_I2C 'pointer'
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00C3   1B95           00401         btfsc   SSP1CON1,WCOL   ; did a write collision occur?
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00C4   1395           00402         bcf     SSP1CON1,WCOL   ; if so, clear bit
+00C5   2???           00403         goto    I2C_Write_Return
+                      00404 ;
+                      00405 ;
+                      00406 ; is transmission complete?
+                      00407 ;
+00C6   1075           00408 I2C_Write_1     bcf     I2C_TRANS_DATA  ; clear bit
+00C7   14F5           00409         bsf     I2C_TRANS_COMPLETE      ; get ready to end sequence
+00C8   2???           00410         goto    I2C_Write_Return
+                      00411 ;
+                      00412 ; finish transmit sequence
+                      00413 ;
+00C9   1EF4           00414 I2C_Write_End   btfss   I2C_Stop_Asserted       ; is stop set?
+00CA   2???           00415         goto    I2C_Write_Return        ; yes, we're done
+00CB   12F4           00416         bcf     I2C_Stop_Asserted       ; if so, clear stop
+00CC   1274           00417         bcf     I2C_Write_Seq_Active    ; clear bit to prevent more transmissions
+00CD   1074           00418         bcf     I2C_TXLocked    ; unlock data
+00CE   2???           00419         goto    I2C_Write_Return
+                      00420 ;
+                      00421 ;=========================================================================================
+                      00422 ; READ FROM SLAVE SEQUENCE OF EVENTS
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 16
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00423 ;
+00CF   1F74           00424 I2C_READ        btfss   I2C_Addr_Pending        ; if not, was read add transmitted to slave?
+00D0   2???           00425         goto    I2C_READ_1      ; if so, set master to receive
+                      00426 ; Send address to slave(s)
+00D1   1374           00427         bcf     I2C_Addr_Pending        ; clear bit
+00D2   1675           00428         bsf     I2C_INIT_MSTR_REC       ; set bit to get ready next INT
+00D3   2???           00429         call    I2C_GetSlaveAddr
+00D4   0024           00430         banksel SSP1BUF
+00D5   1409           00431         BSF     WREG,0  ; Set R/W* to Read 
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00D6   0091           00432         movwf   SSP1BUF
+00D7   2???           00433         goto    I2C_READ_Return
+                      00434 ;
+                      00435 ; sets up master as a receiver
+                      00436 ;
+00D8   1EF5           00437 I2C_READ_1      btfss   I2C_SET_RCEN    ; is bit set?
+00D9   2???           00438         goto    I2C_READ_2      ; if not, master is in receive mode
+00DA   12F5           00439         bcf     I2C_SET_RCEN    ; otherwise, get set up
+00DB   1775           00440         bsf     I2C_REC_BYTE
+00DC   0024           00441         banksel SSP1CON2
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00DD   1596           00442         bsf     SSP1CON2,RCEN   ; set RCEN to enable master receive mode
+00DE   2???           00443         goto    I2C_READ_Return
+                      00444 ;
+                      00445 ; read the data byte from slave
+                      00446 ;
+00DF   1F75           00447 I2C_READ_2      btfss   I2C_REC_BYTE    ;Was data received?
+00E0   2???           00448         goto    I2C_READ_3      ; No
+00E1   1375           00449         bcf     I2C_REC_BYTE
+                      00450 ;
+00E2   2???           00451         call    I2C_Set_RX_PTR
+00E3   0024           00452         banksel SSP1BUF
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+00E4   0811           00453         movf    SSP1BUF,W       ; move the contents of the buffer into W
+00E5   0081           00454         movwf   INDF1   ; load INDF1 with data to write
+00E6   0AF3           00455         incf    INDEX_I2C,F     ; increment INDEX_I2C 'pointer'
+00E7   1574           00456         bsf     I2C_SET_ACKEN   ; set up ack sequence in MAIN
+00E8   2???           00457         goto    I2C_READ_Return
+                      00458 ;
+                      00459 ; get ready to wrap things up
+                      00460 ;
+00E9   1FF5           00461 I2C_READ_3      btfss   I2C_Recd_All
+00EA   2???           00462         goto    I2C_READ_End
+00EB   13F5           00463         bcf     I2C_Recd_All
+00EC   10F4           00464         bcf     I2C_RXLocked    ; unlock the data
+00ED   1476           00465         bsf     I2C_NewRXData   ;new data is complete
+00EE   1575           00466         bsf     I2C_REC_COMPLETE
+00EF   2???           00467         goto    I2C_READ_Return
+                      00468 ;
+00F0   1EF4           00469 I2C_READ_End    btfss   I2C_Stop_Asserted
+00F1   2???           00470         goto    I2C_READ_Return
+00F2   12F4           00471         bcf     I2C_Stop_Asserted       ; if so, clear stop
+00F3   11F5           00472         bcf     I2C_Read_Seq_Active     ; and we are done
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 17
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00F4   2???           00473         goto    I2C_READ_Return
+                      00474 ;
+                      00475 ;=========================================================================================
+                      00476 ; Entry: none
+                      00477 ; Exit: W=SlaveAddress
+                      00478 ;
+00F5                  00479 I2C_GetSlaveAddr:
+00F5   0020           00480         BANKSEL I2C_Slave_Idx
+00F6   082F           00481         movf    I2C_Slave_Idx,W
+00F7   3903           00482         andlw   0x03
+00F8   000B           00483         brw
+00F9   3430           00484         retlw   I2C_ADDRESS
+00FA   3432           00485         retlw   I2C_ADDRESS+2
+00FB   3434           00486         retlw   I2C_ADDRESS+4
+00FC   3436           00487         retlw   I2C_ADDRESS+6
+                      00488 ;
+                      00489 ; Set FSR1 to point to the tx buffer for slave I2C_Slave_Idx
+00FD                  00490 I2C_Set_TX_PTR:
+00FD   0020           00491         BANKSEL I2C_Slave_Idx
+00FE   30??           00492         movlw   low I2C_ARRAY_TX
+00FF   0086           00493         movwf   FSR1L
+0100   30??           00494         movlw   high I2C_ARRAY_TX
+0101   0087           00495         movwf   FSR1H
+                      00496 ;
+0102   0873           00497 I2C_Set_TX_PTR_E2       movf    INDEX_I2C,W
+0103   0786           00498         addwf   FSR1L,F
+0104   0103           00499         clrw
+0105   3D87           00500         addwfc  FSR1H,F
+                      00501 ;
+0106   082F           00502         movf    I2C_Slave_Idx,W
+0107   00B0           00503         movwf   I2C_Temp
+0108   1903           00504         SKPNZ
+0109   0008           00505         return
+                      00506 ;
+010A   3004           00507 I2C_Set_TX_PTR_L1       movlw   RX_ELEMENTS
+010B   0786           00508         addwf   FSR1L,F
+010C   0103           00509         clrw
+010D   3D87           00510         addwfc  FSR1H,F
+010E   0BB0           00511         decfsz  I2C_Temp,F
+010F   2???           00512         goto    I2C_Set_TX_PTR_L1
+0110   0008           00513         return
+                      00514 ;
+                      00515 ; Set FSR1 to point to the rx buffer for slave I2C_Slave_Idx
+0111                  00516 I2C_Set_RX_PTR:
+0111   0020           00517         BANKSEL I2C_Slave_Idx
+0112   30??           00518         movlw   low I2C_ARRAY_RX
+0113   0086           00519         movwf   FSR1L
+0114   30??           00520         movlw   high I2C_ARRAY_RX
+0115   0087           00521         movwf   FSR1H
+0116   2???           00522         goto    I2C_Set_TX_PTR_E2
+                      00523 ;       
+                      00524 
+                      00525 
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 18
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00526 
+                      00527 
+                      00528 
+                      00529 
+                      00530 
+                      00531 
+                      00532 
+                      00533 
+                      00534 
+                      00535 
+                      00536 
+                      00537 
+                      00538 
+                      00539 
+                      00540 
+                      00541 
+                      00542 
+                      00543 
+                      00342 ;
+                      00343 ;==============================================================================================
+                      00344 ;**********************************************************************************************
+                      00345 ;==============================================================================================
+                      00346 ;
+0117   0021           00347 start   MOVLB   0x01    ; select bank 1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0118   1795           00348         bsf     OPTION_REG,NOT_WPUEN    ; disable pullups on port B
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0119   1295           00349         bcf     OPTION_REG,TMR0CS       ; TMR0 clock Fosc/4
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+011A   1195           00350         bcf     OPTION_REG,PSA  ; prescaler assigned to TMR0
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+011B   1415           00351         bsf     OPTION_REG,PS0  ;111 8mhz/4/256=7812.5hz=128uS/Ct=0.032768S/ISR
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+011C   1495           00352         bsf     OPTION_REG,PS1  ;101 8mhz/4/64=31250hz=32uS/Ct=0.008192S/ISR
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+011D   1515           00353         bsf     OPTION_REG,PS2
+                      00354 ;
+011E   0021           00355         MOVLB   0x01    ; bank 1
+011F   3070           00356         MOVLW   b'01110000'     ;8MHz
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0120   0099           00357         MOVWF   OSCCON
+0121   3017           00358         movlw   b'00010111'     ; WDT prescaler 1:65536 period is 2 sec (RESET value)
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0122   0097           00359         movwf   WDTCON  
+                      00360 ;       
+                      00361 ;
+                      00362 ; setup timer 1 for 0.5uS/count
+                      00363 ;
+0123   0020           00364         BANKSEL T1CON   ; bank 0
+0124   3001           00365         MOVLW   T1CON_Val
+0125   0098           00366         MOVWF   T1CON
+0126   1399           00367         bcf     T1GCON,TMR1GE
+                      00368 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 19
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00369 ; clear memory to zero
+0127   2???           00370         CALL    ClearRam
+                      00371 ;
+                      00372 ;
+                      00373 ; setup data ports
+0128   0020           00374         BANKSEL PORTA
+0129   3000           00375         MOVLW   PortAValue
+012A   008C           00376         MOVWF   PORTA   ;Init PORTA
+012B   0023           00377         BANKSEL ANSELA
+012C   3000           00378         MOVLW   0x00
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+012D   008C           00379         MOVWF   ANSELA  ;digital I/O
+012E   0021           00380         BANKSEL TRISA
+012F   30CF           00381         MOVLW   PortADDRBits
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0130   008C           00382         MOVWF   TRISA
+                      00383 ;
+0131   0020           00384         MOVLB   0       ;bank 0
+0132   0064           00385         CLRWDT
+                      00386 ;
+0133   3064           00387         MOVLW   LEDTIME
+0134   00A1           00388         MOVWF   LED_Time
+                      00389 ;
+0135   3001           00390         MOVLW   0x01
+0136   00A3           00391         MOVWF   tickcount
+                      00392 ;
+0137   0064           00393         CLRWDT
+                      00394 ;
+                      00395 ;
+0138   170B           00396         bsf     INTCON,PEIE     ; enable periferal interupts
+0139   168B           00397         bsf     INTCON,T0IE     ; enable TMR0 interupt
+013A   178B           00398         bsf     INTCON,GIE      ; enable interupts
+                      00399 ;
+013B   2???           00400         call    Init_I2C        ;setup I2C
+                      00401 ;
+                      00402 ;=========================================================================================
+                      00403 ;=========================================================================================
+                      00404 ;  Main Loop
+                      00405 ;
+013C   0064           00406 MainLoop        CLRWDT
+013D   2???           00407         call    Idle_I2C
+013E   2???           00408         CALL    I2C_DataInturp
+                      00409 ;
+013F   2???           00410         CALL    I2C_DataSender
+                      00411 ;
+0140   2???           00412         goto    MainLoop
+                      00413 ;
+                      00414 ;==============================================================
+                      00415 ;
+0141   18F4           00416 I2C_DataInturp  BTFSC   I2C_RXLocked    ;Data is locked?
+0142   0008           00417         RETURN          ; Yes
+0143   1C76           00418         BTFSS   I2C_NewRXData   ;Data is new?
+0144   0008           00419         RETURN          ; No
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 20
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0145   1076           00420         BCF     I2C_NewRXData
+0146   01F9           00421         CLRF    Param79 ;offset
+                      00422         LOADFSR0        I2C_ARRAY_RX,Param79
+0147   30??               M         movlw   low I2C_ARRAY_RX ; load address                                          
+0148   0779               M         addwf   Param79,W ; add the index value to determine location in array
+0149   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
+014A   0185               M         clrf    FSR0H
+014B   30??               M         movlw   high I2C_ARRAY_RX
+014C   3D85               M         addwfc  FSR0H,F
+014D   0800           00423         MOVF    INDF0,W
+014E   00F8           00424         MOVWF   Param78
+                      00425 ;
+014F   0022           00426         MOVLB   0x02
+0150   1C78           00427         BTFSS   Param78,0
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0151   128C           00428         BCF     LED1Bit
+0152   1878           00429         BTFSC   Param78,0
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0153   168C           00430         BSF     LED1Bit
+0154   0020           00431         MOVLB   0x00
+0155   0008           00432         RETURN
+                      00433 ;
+                      00434 ;==============================================================
+                      00435 ;
+0156   1874           00436 I2C_DataSender  BTFSC   I2C_TXLocked
+0157   0008           00437         RETURN
+                      00438 ;
+0158   01F8           00439         CLRF    Param78
+0159   1D8C           00440         BTFSS   SW1BtnBit
+015A   1478           00441         BSF     Param78,0
+                      00442 ;
+015B   01F9           00443         CLRF    Param79 ;offset
+                      00444         LOADFSR0        I2C_ARRAY_TX,Param79
+015C   30??               M         movlw   low I2C_ARRAY_TX ; load address                                          
+015D   0779               M         addwf   Param79,W ; add the index value to determine location in array
+015E   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
+015F   0185               M         clrf    FSR0H
+0160   30??               M         movlw   high I2C_ARRAY_TX
+0161   3D85               M         addwfc  FSR0H,F
+0162   0878           00445         MOVF    Param78,W
+0163   0200           00446         SUBWF   INDF0,W
+0164   1903           00447         SKPNZ
+0165   0008           00448         RETURN
+                      00449 ;
+0166   14F6           00450         bsf     I2C_NewDataToTX
+0167   0878           00451         MOVF    Param78,W
+0168   0080           00452         MOVWF   INDF0
+                      00453 ;
+0169   0008           00454         RETURN
+                      00455 ;=========================================================================================
+                      00456 ;=========================================================================================
+                      00457 ;
+                      00458         include F1822_Common.inc
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 21
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 ;=========================================================================================
+                      00002 ; Commonly used routines PIC16F1822 version
+                      00003 ;
+                      00004 ;    Filename:      F1822 Common.inc
+                      00005 ;    Date:          9/4/2014
+                      00006 ;    File Version:  1.0.1
+                      00007 ;
+                      00008 ;    Author:        David M. Flynn
+                      00009 ;    Company:       Oxford V.U.E., Inc.
+                      00010 ;    E-Mail:        dflynn@oxfordvue.com
+                      00011 ;    Web Site:      http://www.oxfordvue.com/
+                      00012 ;
+                      00013 ;=========================================================================================
+                      00014 ;    History:
+                      00015 ;
+                      00016 ; 1.0.1 9/4/2014        Updated from F1847 Common.inc
+                      00017 ; 1.0   11/16/2013      Updated from F648A Common.inc
+                      00018 ;
+                      00019 ;=========================================================================================
+                      00020 ; Routines:
+                      00021 ;
+                      00022 ; ClearRam      (2+0) Clears all RAM, call once before initializing variables, FSR0
+                      00023 ; CopyToRam     (1+0) copy param memory (EEPROM) to ram, call once, FSR0
+                      00024 ; SaveParams    (1+0) copy ram to param memory (EEPROM), FSR0
+                      00025 ; TX_TheByte    (0+0) Send one byte to UART
+                      00026 ; RX_TheByte    (0+0) Receive one byte from UART
+                      00027 ;
+                      00028 ; DecTimer4     (0+0) Decrement routine for 16 bit timers, FSR0
+                      00029 ; DecTimer3
+                      00030 ; DecTimer2
+                      00031 ; DecTimer1
+                      00032 ;
+                      00033 ; TestT4_Zero   Test for 16 bit timers = zero
+                      00034 ; TestT3_Zero   If Timer is zero return Z flag,1 else Z=0
+                      00035 ; TestT2_Zero
+                      00036 ; TestT1_Zero
+                      00037 ;
+                      00038 ; Delay10uS     (0+0)Delay uS    1 cycle = 1uS, 8Mhz clock version
+                      00039 ; Delay100uS
+                      00040 ; Delay40uS
+                      00041 ; DelayWuS
+                      00042 ;
+                      00043 ; EEReadW       (0+0) Read EEPROM address in W
+                      00044 ; EERead        (0+0) Read EEPROM address in EEAddrTemp
+                      00045 ; EEWriteW      (0+0) Write EEPROM address in W, Data in EEDataTemp
+                      00046 ; EEWrite       (0+0) Write EEPROM address in EEAdrTemp, Data in EEDataTemp, FSR0
+                      00047 ;
+                      00048 ; StoreSerIn    Put the byte in W into the serial input buffer, FSR0
+                      00049 ; GetSerIn      Get a byte from the serial input buffer, FSR0
+                      00050 ; GetSerOutBytes        Get the number of bytes in the serial ouput buffer
+                      00051 ; StoreSerOut   Put the byte in W into the serial output buffer, FSR0
+                      00052 ; POP_SerOut    Remove the last char stored in the output buffer
+                      00053 ; GetSerOut     Get a byte from the serial Output buffer, FSR0
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 22
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00054 ;
+                      00055 ;=========================================================================================
+                      00056 ; Clears all RAM
+                      00057 ; Entry: none
+                      00058 ; Exit: none
+                      00059 ; RAM used: All
+                      00060 ; Calls:(2+0) ClearRam_L2
+                      00061 ;
+016A   0020           00062 ClearRam        MOVLB   0x00
+016B   305F           00063         MOVLW   0x5F    ;Clear 20h-7Eh, 95 bytes
+016C   00FF           00064         MOVWF   Param7F
+016D   3020           00065         MOVLW   0x20
+016E   0084           00066         MOVWF   FSR0
+016F   0185           00067         CLRF    FSR0H
+0170   2???           00068         CALL    ClearRam_L2
+                      00069 ;
+0171   3020           00070         MOVLW   0x20    ;Clear A0h-BFh, 32 bytes
+0172   00FF           00071         MOVWF   Param7F
+0173   30A0           00072         MOVLW   0xA0
+0174   0084           00073         MOVWF   FSR0
+                      00074 ;
+0175   0180           00075 ClearRam_L2     CLRF    INDF0
+0176   0A84           00076         INCF    FSR0,F
+0177   0BFF           00077         DECFSZ  Param7F,F
+0178   2???           00078         GOTO    ClearRam_L2
+0179   0008           00079         RETURN
+                      00080 ;
+                      00081         ifndef UesesCopyToRam
+                      00082         constant UesesCopyToRam=0
+                      00083         endif
+                      00084         if UesesCopyToRam
+                      00085 ;==========================================================================
+                      00086 ; copy param memory to ram
+                      00087 ;
+                      00088 CopyToRam:
+                      00089         BankSel EEAddrTemp
+                      00090         MOVLW   nvFirstParamByte
+                      00091         MOVWF   EEAddrTemp
+                      00092         MOVLW   FirstRAMParam
+                      00093         MOVWF   FSR0
+                      00094         CLRF    FSR0H
+                      00095 CopyToRam_L1    CALL    EERead
+                      00096         MOVWF   INDF0
+                      00097         MOVLW   LastRAMParam
+                      00098         SUBWF   FSR0,W
+                      00099         SKPNZ
+                      00100         RETURN
+                      00101         INCF    FSR0,F
+                      00102         INCF    EEAddrTemp,F
+                      00103         GOTO    CopyToRam_L1
+                      00104 ;
+                      00105 ;===========================================================================
+                      00106 ; copy ram to param memory
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 23
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00107 ;
+                      00108 SaveParams:
+                      00109         BankSel EEAddrTemp
+                      00110         MOVLW   nvFirstParamByte
+                      00111         MOVWF   EEAddrTemp
+                      00112         MOVLW   FirstRAMParam
+                      00113         MOVWF   FSR0
+                      00114         CLRF    FSR0H
+                      00115 SaveParams_L1   MOVF    INDF0,W
+                      00116         MOVWF   EEDataTemp
+                      00117         CALL    EEWrite
+                      00118         MOVLW   LastRAMParam    ;last byte
+                      00119         SUBWF   FSR0,W
+                      00120         SKPNZ
+                      00121         RETURN
+                      00122         INCF    FSR0,F
+                      00123         INCF    EEAddrTemp,F
+                      00124         GOTO    SaveParams_L1
+                      00125 ;
+                      00126         endif
+                      00127 ;=====================================================================================================
+                      00128 ;=======================================================================================================
+                            ==
+                      00129 ; Decrement routine for 16 bit timers
+                      00130 ;
+017A   302D           00131 DecTimer4       movlw   Timer4Hi
+017B   2???           00132         goto    DecTimer
+017C   302B           00133 DecTimer3       movlw   Timer3Hi
+017D   2???           00134         goto    DecTimer
+017E   3029           00135 DecTimer2       movlw   Timer2Hi
+017F   2???           00136         goto    DecTimer
+0180   3027           00137 DecTimer1       movlw   Timer1Hi
+                      00138 ;DecTimer
+                      00139 ; entry: FSR=Timer(n)Hi
+0181   0084           00140 DecTimer        MOVWF   FSR0
+0182   0800           00141         MOVF    INDF0,W ;TimerNHi
+0183   0384           00142         DECF    FSR0,F
+0184   0400           00143         IORWF   INDF0,W ;TimerNLo
+0185   1903           00144         SKPNZ
+0186   0008           00145         RETURN
+0187   3001           00146         MOVLW   0x01
+0188   0280           00147         SUBWF   INDF0,F ;TimerNLo
+0189   0A84           00148         INCF    FSR0,F
+018A   3000           00149         MOVLW   0x00
+018B   3B80           00150         SUBWFB  INDF0,F ;TimerNHi
+018C   0008           00151         RETURN
+                      00152 ;
+                      00153 ;==============================================================================================
+                      00154 ; Test for 16 bit timers = zero
+                      00155 ;If Timer is zero return Z flag,1 else Z=0
+                      00156 ;
+018D   082C           00157 TestT4_Zero     movf    Timer4Lo,W
+018E   042D           00158         iorwf   Timer4Hi,W
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 24
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+018F   0008           00159         return
+                      00160 ;
+0190   082A           00161 TestT3_Zero     movf    Timer3Lo,W
+0191   042B           00162         iorwf   Timer3Hi,W
+0192   0008           00163         return
+                      00164 ;
+0193   0828           00165 TestT2_Zero     movf    Timer2Lo,W
+0194   0429           00166         iorwf   Timer2Hi,W
+0195   0008           00167         return
+                      00168 ;
+0196   0826           00169 TestT1_Zero     movf    Timer1Lo,W
+0197   0427           00170         iorwf   Timer1Hi,W
+0198   0008           00171         return  
+                      00172 ;
+                      00173 ;======================================================================================
+                      00174 ;Delay uS    1 cycle = 1uS, 8Mhz clock version
+                      00175 ; RAM used: Param77
+                      00176 ; Calls:(0) none
+0199   3005           00177 Delay10uS       MOVLW   0x05    ;(2*3+5)/2=10
+019A   2???           00178         GOTO    DelayWuS
+019B   3041           00179 Delay100uS      MOVLW   d'65'   ;(28*3+5)/2=100
+019C   2???           00180         GOTO    DelayWuS
+019D   3019           00181 Delay40uS       MOVLW   d'25'   ;(11*3+5)=40
+019E   00F7           00182 DelayWuS        MOVWF   Param77
+019F   0BF7           00183 DelayWuS_Loop   DECFSZ  Param77,F
+01A0   2???           00184         GOTO    DelayWuS_Loop
+01A1   0008           00185         RETURN
+                      00186 ;
+                      00187 ;==============================================================================================
+                      00188 ; Read EEPROM
+                      00189 ; entry: EEPROM address to read in W
+                      00190 ;        Bank 0 selected
+                      00191 ; exit: W=EEDATA, Bank 0 selected
+                      00192 ;
+01A2   00A4           00193 EEReadW movwf   EEAddrTemp
+                      00194 ;
+                      00195 ;==============================================================================================
+                      00196 ; Read EEPROM
+                      00197 ; entry: EEPROM address to read in EEAddrTemp
+                      00198 ;        Bank 0 selected
+                      00199 ; exit: W=EEDATA, Bank 0 selected
+                      00200 ;
+01A3   0824           00201 EERead  MOVF    EEAddrTemp,W    ;Data Memory
+01A4   0023           00202         BANKSEL EEADRL
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A5   0091           00203         MOVWF   EEADRL  ;Address to read
+                      00204 ;
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A6   1315           00205         BCF     EECON1,CFGS     ;Deselect Config space
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A7   1395           00206         BCF     EECON1,EEPGD    ;Point to DATA memory
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A8   1415           00207         BSF     EECON1,RD       ;EE Read
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 25
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01A9   0813           00208         MOVF    EEDATL,W        ;W = EEDATL
+01AA   0020           00209         MOVLB   0x00    ;Bank 0
+01AB   0008           00210         return
+                      00211 ;       
+                      00212 ;==============================================================================================
+                      00213 ; Write EEPROM
+                      00214 ; entry: EEPROM address to write in W
+                      00215 ;        EEPROM data to write in EEDataTemp
+                      00216 ;        Bank 0 selected
+                      00217 ; exit: Bank 0 selected
+                      00218 ;
+01AC   00A4           00219 EEWriteW        movwf   EEAddrTemp
+                      00220 ;
+                      00221 ;==============================================================================================
+                      00222 ; Write EEPROM
+                      00223 ; entry: EEPROM address to write in EEAdrTemp
+                      00224 ;        EEPROM data to write in EEDataTemp
+                      00225 ;        Bank 0 selected
+                      00226 ; exit: Bank 0 selected
+                      00227 ;
+01AD   0824           00228 EEWrite MOVF    EEAddrTemp,W
+01AE   0023           00229         BANKSEL EEADRL
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01AF   0091           00230         MOVWF   EEADRL  ;Data Memory Address to write
+01B0   0020           00231         BankSel EEDataTemp
+01B1   0825           00232         MOVF    EEDataTemp,W
+01B2   0023           00233         BANKSEL EEDATL
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B3   0093           00234         MOVWF   EEDATL  ;Data Memory Value to write
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B4   1315           00235         BCF     EECON1,CFGS     ;Deselect Configuration space
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B5   1395           00236         BCF     EECON1,EEPGD    ;Point to DATA memory
+01B6   138B           00237         BCF     INTCON,GIE      ;Disable INTs.
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B7   1515           00238         BSF     EECON1,WREN     ;Enable writes
+01B8   3055           00239         MOVLW   0x55
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01B9   0096           00240         MOVWF   EECON2  ;Write 55h
+01BA   30AA           00241         MOVLW   0xAA
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01BB   0096           00242         MOVWF   EECON2  ;Write AAh
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01BC   1495           00243         BSF     EECON1,WR       ;Set WR bit to begin write
+01BD   178B           00244         BSF     INTCON,GIE      ;Enable Interrupts
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01BE   1115           00245         BCF     EECON1,WREN     ;Disable writes
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01BF   1895           00246 EEWriteLoop     BTFSC   EECON1,WR       ;Wait for write to complete
+01C0   2???           00247         GOTO    EEWriteLoop
+01C1   0020           00248         MOVLB   0x00    ;Bank 0
+01C2   0008           00249         return
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 26
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00250 ;
+                      00251 ;=======================================================================================================
+                            ==
+                      00252         IF useRS232
+                      00253 ;=====================================================================================================
+                      00254 ; Send one byte
+                      00255 ; Entry: Bank0
+                      00256 ; Exit: Bank0
+                      00257 ;
+                      00258 ;
+                      00259 TX_TheByte      MOVF    TXByte,W
+                      00260         BTFSS   DataSentFlag
+                      00261         MOVWF   TXREG
+                      00262         BSF     DataSentFlag
+                      00263         RETURN
+                      00264 ;
+                      00265 ;=====================================================================================================
+                      00266 ;
+                      00267 RX_TheByte      MOVF    RCSTA,W
+                      00268         ANDLW   0x06
+                      00269         SKPZ            ;Fame or Overrun Err?
+                      00270         GOTO    RX_TheByte_Err  ; yes
+                      00271         MOVF    RCREG,W
+                      00272 ;
+                      00273         MOVWF   RXByte
+                      00274         BSF     DataReceivedFlag
+                      00275         RETURN
+                      00276 ;
+                      00277 RX_TheByte_Err  MOVF    RCREG,W ;bad byte so drop it
+                      00278         CLRF    RXByte
+                      00279         BCF     RCSTA,CREN
+                      00280         BCF     RCSTA,FERR
+                      00281         BCF     RCSTA,OERR
+                      00282         BSF     RCSTA,CREN
+                      00283         RETURN
+                      00284 ;
+                      00285 ;=======================================================================================================
+                            ==
+                      00286 ;=============================================================================================
+                      00287 ; Put the byte in W into the serial input buffer
+                      00288 ;
+                      00289 ; Entry: W = byte to store
+                      00290 ; Exit: none
+                      00291 ;
+                      00292 StoreSerIn      MOVWF   Param78
+                      00293         MOVLB   Ser_Buff_Bank
+                      00294         INCF    Ser_In_Bytes,F
+                      00295 ;       
+                      00296         MOVF    Ser_In_InPtr,W
+                      00297         ANDLW   0x1F
+                      00298         INCF    Ser_In_InPtr,F
+                      00299         ADDLW   low Ser_In_Buff
+                      00300         MOVWF   FSR0
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 27
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00301         MOVLW   high Ser_In_Buff
+                      00302         MOVWF   FSR0H
+                      00303         MOVF    Param78,W
+                      00304         MOVWF   INDF0
+                      00305         MOVLB   0x00
+                      00306         RETURN
+                      00307 ;
+                      00308 ;=============================================================================================
+                      00309 ; Get a byte from the serial input buffer
+                      00310 ;
+                      00311 ; Entry: none
+                      00312 ; Exit: W=byte from buffer, Param78,0=valid
+                      00313 ;
+                      00314 GetSerIn        MOVLB   Ser_Buff_Bank
+                      00315         BCF     Param78,0       ;no data
+                      00316         MOVF    Ser_In_Bytes,F
+                      00317         SKPNZ
+                      00318         GOTO    Bank0Rtn
+                      00319         BSF     Param78,0
+                      00320         DECF    Ser_In_Bytes,F
+                      00321         MOVF    Ser_In_OutPtr,W
+                      00322         ANDLW   0x1F
+                      00323         INCF    Ser_In_OutPtr,F
+                      00324         ADDLW   low Ser_In_Buff
+                      00325         MOVWF   FSR0
+                      00326         MOVLW   high Ser_In_Buff
+                      00327         MOVWF   FSR0H
+                      00328         MOVF    INDF0,W
+                      00329 Bank0Rtn        MOVLB   0x00
+                      00330         RETURN
+                      00331 ;
+                      00332 ;=============================================================================================
+                      00333 ; Get the number of bytes in the serial ouput buffer
+                      00334 ;
+                      00335 ; Entry: none
+                      00336 ; Exit: W=bytes in buffer, Z
+                      00337 ;
+                      00338 GetSerOutBytes  MOVLB   Ser_Buff_Bank
+                      00339         MOVF    Ser_Out_Bytes,W
+                      00340         MOVLB   0x00
+                      00341         RETURN
+                      00342 ;
+                      00343 ;=============================================================================================
+                      00344 ; Put the byte in W into the serial output buffer
+                      00345 ;
+                      00346 ; Entry: W = byte to store
+                      00347 ; Exit: Param78 & W = byte stored
+                      00348 ;
+                      00349 StoreSerOut     MOVWF   Param78
+                      00350         MOVLB   Ser_Buff_Bank
+                      00351         INCF    Ser_Out_Bytes,F
+                      00352 ;       
+                      00353         MOVF    Ser_Out_InPtr,W
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 28
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00354         ANDLW   0x1F
+                      00355         INCF    Ser_Out_InPtr,F
+                      00356         ADDLW   low Ser_Out_Buff
+                      00357         MOVWF   FSR0
+                      00358         MOVLW   high Ser_In_Buff
+                      00359         MOVWF   FSR0H
+                      00360         MOVF    Param78,W
+                      00361         MOVWF   INDF0
+                      00362         MOVLB   0x00
+                      00363         RETURN
+                      00364 ;
+                      00365 ;=============================================================================================
+                      00366 ; Remove the last char stored in the output buffer
+                      00367 ;
+                      00368 POP_SerOut      MOVLB   Ser_Buff_Bank
+                      00369         MOVF    Ser_Out_Bytes,F
+                      00370         SKPNZ
+                      00371         GOTO    Bank0Rtn
+                      00372         DECF    Ser_Out_Bytes,F
+                      00373         DECF    Ser_Out_InPtr,F
+                      00374         MOVLB   0x00
+                      00375         RETURN
+                      00376 ;
+                      00377 ;=============================================================================================
+                      00378 ; Get a byte from the serial Output buffer
+                      00379 ;
+                      00380 ; Entry: none
+                      00381 ; Exit: W=byte from buffer, Param78,0=valid
+                      00382 ;
+                      00383 GetSerOut       MOVLB   Ser_Buff_Bank
+                      00384         BCF     Param78,0       ;no data
+                      00385         MOVF    Ser_Out_Bytes,F
+                      00386         SKPNZ
+                      00387         GOTO    Bank0Rtn
+                      00388         BSF     Param78,0
+                      00389         DECF    Ser_Out_Bytes,F
+                      00390         MOVF    Ser_Out_OutPtr,W
+                      00391         ANDLW   0x1F
+                      00392         INCF    Ser_Out_OutPtr,F
+                      00393         ADDLW   low Ser_Out_Buff
+                      00394         MOVWF   FSR0
+                      00395         MOVLW   high Ser_In_Buff
+                      00396         MOVWF   FSR0H
+                      00397         MOVF    INDF0,W
+                      00398         MOVLB   0x00
+                      00399         RETURN
+                      00400 ;
+                      00401         ENDIF
+                      00402 ;
+                      00403 ;
+                      00459 ;
+                      00460 ;=========================================================================================
+                      00461 ;=========================================================================================
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 29
+
+F1822 Macros
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00462 ;
+                      00463 ;
+                      00464 ;
+                      00465 ;
+Message[303]: Program word too large.  Truncated to core size. (EFA4)
+Message[303]: Program word too large.  Truncated to core size. (DEFF)
+2FA4 1EFF             00466         END
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 30
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ABDEN                             00000000
+ABDOVF                            00000007
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ADCON0                            0000009D
+ADCON1                            0000009E
+ADCS0                             00000004
+ADCS1                             00000005
+ADCS2                             00000006
+ADDEN                             00000003
+ADFM                              00000007
+ADFVR0                            00000000
+ADFVR1                            00000001
+ADGO                              00000001
+ADIE                              00000006
+ADIF                              00000006
+ADON                              00000000
+ADPREF0                           00000000
+ADPREF1                           00000001
+ADRES                             0000009B
+ADRESH                            0000009C
+ADRESL                            0000009B
+AHEN                              00000001
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000004
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA4                             00000004
+ANSELA                            0000018C
+APFCON                            0000011D
+APFCON0                           0000011D
+All_In                            000000FF
+All_Out                           00000000
+BAUDCON                           0000019F
+BCL1IE                            00000003
+BCL1IF                            00000003
+BEQ                               
+BF                                00000000
+BMI                               
+BNE                               
+BOEN                              00000004
+BORCON                            00000116
+BORRDY                            00000000
+BPL                               
+BRG16                             00000003
+BRGH                              00000002
+BRG_VAL                           00000027
+BSR                               00000008
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 31
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BSR0                              00000000
+BSR1                              00000001
+BSR2                              00000002
+BSR3                              00000003
+BSR4                              00000004
+BSR_SHAD                          00000FE6
+C                                 00000000
+C1HYS                             00000001
+C1IE                              00000005
+C1IF                              00000005
+C1IN0N                            00000001
+C1IN1N                            00000004
+C1INP                             00000000
+C1INTN                            00000006
+C1INTP                            00000007
+C1NCH0                            00000000
+C1OE                              00000005
+C1ON                              00000007
+C1OUT_CM1CON0                     00000006
+C1OUT_PORTA                       00000002
+C1PCH0                            00000004
+C1PCH1                            00000005
+C1POL                             00000004
+C1SP                              00000002
+C1SYNC                            00000000
+CCP1AS                            00000295
+CCP1AS0                           00000004
+CCP1AS1                           00000005
+CCP1AS2                           00000006
+CCP1ASE                           00000007
+CCP1CON                           00000293
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1SEL                           00000000
+CCPR1                             00000291
+CCPR1H                            00000292
+CCPR1L                            00000291
+CDAFVR0                           00000002
+CDAFVR1                           00000003
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CHS4                              00000006
+CKE                               00000006
+CKP                               00000004
+CLKIN                             00000005
+CLKOUT                            00000004
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 32
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CLKR                              00000004
+CLKRCON                           0000039A
+CLKRDC0                           00000003
+CLKRDC1                           00000004
+CLKRDIV0                          00000000
+CLKRDIV1                          00000001
+CLKRDIV2                          00000002
+CLKREN                            00000007
+CLKROE                            00000006
+CLKRSLR                           00000005
+CM1CON0                           00000111
+CM1CON1                           00000112
+CMOUT                             00000115
+CMP                               
+CPS0                              00000000
+CPS1                              00000001
+CPS2                              00000002
+CPS3                              00000004
+CPSCH0                            00000000
+CPSCH1                            00000001
+CPSCON0                           0000001E
+CPSCON1                           0000001F
+CPSON                             00000007
+CPSOUT                            00000001
+CPSRM                             00000006
+CPSRNG0                           00000002
+CPSRNG1                           00000003
+CREN                              00000004
+CSRC                              00000007
+C_SHAD                            00000000
+ClearRam                          0000016A
+ClearRam_L2                       00000175
+DACCON0                           00000118
+DACCON1                           00000119
+DACEN                             00000007
+DACLPS                            00000006
+DACOE                             00000005
+DACOUT                            00000000
+DACPSS0                           00000002
+DACPSS1                           00000003
+DACR0                             00000000
+DACR1                             00000001
+DACR2                             00000002
+DACR3                             00000003
+DACR4                             00000004
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC_SHAD                           00000001
+DHEN                              00000000
+D_NOT_A                           00000005
+DebounceTime                      0000000A
+DecTimer                          00000181
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 33
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+DecTimer1                         00000180
+DecTimer2                         0000017E
+DecTimer3                         0000017C
+DecTimer4                         0000017A
+Delay100uS                        0000019B
+Delay10uS                         00000199
+Delay40uS                         0000019D
+DelayWuS                          0000019E
+DelayWuS_Loop                     0000019F
+ECCP1AS                           00000295
+EEADR                             00000191
+EEADRH                            00000192
+EEADRL                            00000191
+EEAddrTemp                        00000024
+EECON1                            00000195
+EECON2                            00000196
+EEDAT                             00000193
+EEDATH                            00000194
+EEDATL                            00000193
+EEDataTemp                        00000025
+EEIE                              00000004
+EEIF                              00000004
+EEPGD                             00000007
+EERead                            000001A3
+EEReadW                           000001A2
+EEWrite                           000001AD
+EEWriteLoop                       000001BF
+EEWriteW                          000001AC
+F                                 00000001
+FERR                              00000002
+FLT0                              00000002
+FREE                              00000004
+FSR0                              00000004
+FSR0H                             00000005
+FSR0H_SHAD                        00000FE9
+FSR0L                             00000004
+FSR0L_SHAD                        00000FE8
+FSR1                              00000006
+FSR1H                             00000007
+FSR1H_SHAD                        00000FEB
+FSR1L                             00000006
+FSR1L_SHAD                        00000FEA
+FVRCON                            00000117
+FVREN                             00000007
+FVRRDY                            00000006
+GCEN                              00000007
+GFlags                            00000074
+GFlags2                           00000075
+GFlags3                           00000076
+GIE                               00000007
+GO                                00000001
+GO_NOT_DONE                       00000001
+HFIOFL                            00000003
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 34
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+HFIOFR                            00000004
+HFIOFS                            00000000
+HasISR                            00000080
+I2C_ADDRESS                       00000030
+I2C_ARRAY_RX                      000000AC
+I2C_ARRAY_TX                      000000A0
+I2C_Addr_Pending                  GFlags,6
+I2C_DataInturp                    00000141
+I2C_DataSender                    00000156
+I2C_GetSlaveAddr                  000000F5
+I2C_INIT_MSTR_REC                 GFlags2,4
+I2C_INIT_TRANS_DATA               GFlags,7
+I2C_Init_Start                    GFlags,3
+I2C_NewDataToTX                   GFlags3,1
+I2C_NewRXData                     GFlags3,0
+I2C_READ                          000000CF
+I2C_READ_1                        000000D8
+I2C_READ_2                        000000DF
+I2C_READ_3                        000000E9
+I2C_READ_End                      000000F0
+I2C_READ_Return                   00000022
+I2C_REC_BYTE                      GFlags2,6
+I2C_REC_COMPLETE                  GFlags2,2
+I2C_RXLocked                      GFlags,1
+I2C_RX_Init_Val                   000000AA
+I2C_Read_Seq_Active               GFlags2,3
+I2C_Recd_All                      GFlags2,7
+I2C_SET_ACKEN                     GFlags,2
+I2C_SET_RCEN                      GFlags2,5
+I2C_Set_RX_PTR                    00000111
+I2C_Set_TX_PTR                    000000FD
+I2C_Set_TX_PTR_E2                 00000102
+I2C_Set_TX_PTR_L1                 0000010A
+I2C_SlaveCount                    00000003
+I2C_Slave_Idx                     0000002F
+I2C_StartSeq                      00000074
+I2C_Start_Read_Seq                000000A6
+I2C_Start_Write_Seq               0000009E
+I2C_Stop_Asserted                 GFlags,5
+I2C_TRANS_COMPLETE                GFlags2,1
+I2C_TRANS_DATA                    GFlags2,0
+I2C_TXLocked                      GFlags,0
+I2C_TX_Init_Val                   000000AA
+I2C_Temp                          00000030
+I2C_Write                         000000AD
+I2C_Write_1                       000000C6
+I2C_Write_End                     000000C9
+I2C_Write_Return                  00000022
+I2C_Write_Seq_Active              GFlags,4
+I2C_Write_TXData                  000000B8
+INDEX_I2C                         00000073
+INDF0                             00000000
+INDF1                             00000001
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 35
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IOCAF                             00000393
+IOCAF0                            00000000
+IOCAF1                            00000001
+IOCAF2                            00000002
+IOCAF3                            00000003
+IOCAF4                            00000004
+IOCAF5                            00000005
+IOCAN                             00000392
+IOCAN0                            00000000
+IOCAN1                            00000001
+IOCAN2                            00000002
+IOCAN3                            00000003
+IOCAN4                            00000004
+IOCAN5                            00000005
+IOCAP                             00000391
+IOCAP0                            00000000
+IOCAP1                            00000001
+IOCAP2                            00000002
+IOCAP3                            00000003
+IOCAP4                            00000004
+IOCAP5                            00000005
+IOCIE                             00000003
+IOCIF                             00000000
+IRCF0                             00000003
+IRCF1                             00000004
+IRCF2                             00000005
+IRCF3                             00000006
+IRQ_2                             0000001B
+IRQ_4                             0000001B
+IRQ_4_End                         00000024
+IRQ_5                             00000024
+IRQ_5_End                         0000002B
+ISR_Temp                          00000020
+Idle_I2C                          00000032
+Idle_I2C_B0Rtn                    00000039
+Idle_I2C_Read                     0000004A
+Idle_I2C_Read_1                   00000052
+Idle_I2C_Read_2                   00000059
+Idle_I2C_Read_3                   0000005B
+Idle_I2C_Read_4                   0000006B
+Idle_I2C_Write_1                  0000003B
+Idle_I2C_Write_2                  00000041
+Init_I2C                          00000077
+Init_I2C_L1                       0000007E
+Init_I2C_L2                       00000089
+LATA                              0000010C
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 36
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATA4                             00000004
+LATA5                             00000005
+LED1Bit                           LATA,5
+LEDErrorTime                      0000000A
+LEDTIME                           00000064
+LED_Time                          00000021
+LFIOFR                            00000001
+LOADFSR0                          
+LOADFSR1                          
+LWLO                              00000005
+MC1OUT                            00000000
+MDBIT                             00000000
+MDCARH                            0000039F
+MDCARL                            0000039E
+MDCH0                             00000000
+MDCH1                             00000001
+MDCH2                             00000002
+MDCH3                             00000003
+MDCHODIS                          00000007
+MDCHPOL                           00000006
+MDCHSYNC                          00000005
+MDCIN1                            00000002
+MDCIN2                            00000004
+MDCL0                             00000000
+MDCL1                             00000001
+MDCL2                             00000002
+MDCL3                             00000003
+MDCLODIS                          00000007
+MDCLPOL                           00000006
+MDCLSYNC                          00000005
+MDCON                             0000039C
+MDEN                              00000007
+MDMIN                             00000001
+MDMS0                             00000000
+MDMS1                             00000001
+MDMS2                             00000002
+MDMS3                             00000003
+MDMSODIS                          00000007
+MDOE                              00000006
+MDOPOL                            00000004
+MDOUT_MDCON                       00000003
+MDOUT_PORTA                       00000000
+MDSLR                             00000005
+MDSRC                             0000039D
+MFIOFR                            00000002
+MainLoop                          0000013C
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000003
+NOT_POR                           00000001
+NOT_RI                            00000002
+NOT_RMCLR                         00000003
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 37
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+NOT_T1SYNC                        00000002
+NOT_TO                            00000004
+NOT_WPUEN                         00000007
+OERR                              00000001
+OPTION_REG                        00000095
+OSC1                              00000005
+OSC2                              00000004
+OSCCON                            00000099
+OSCSTAT                           0000009A
+OSCTUNE                           00000098
+OSFIE                             00000007
+OSFIF                             00000007
+OSTS                              00000005
+P                                 00000004
+P1BSEL                            00000001
+P1DC0                             00000000
+P1DC1                             00000001
+P1DC2                             00000002
+P1DC3                             00000003
+P1DC4                             00000004
+P1DC5                             00000005
+P1DC6                             00000006
+P1M0                              00000006
+P1M1                              00000007
+P1RSEN                            00000007
+PCIE                              00000006
+PCL                               00000002
+PCLATH                            0000000A
+PCLATH_SHAD                       00000FE7
+PCON                              00000096
+PEIE                              00000006
+PEN                               00000002
+PIE1                              00000091
+PIE2                              00000092
+PIR1                              00000011
+PIR2                              00000012
+PLLR                              00000006
+PORTA                             0000000C
+PR2                               0000001B
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+PSS1AC0                           00000002
+PSS1AC1                           00000003
+PSS1BD0                           00000000
+PSS1BD1                           00000001
+PSTR1CON                          00000296
+PWM1CON                           00000294
+Param70                           00000070
+Param71                           00000071
+Param72                           00000072
+Param77                           00000077
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 38
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+Param78                           00000078
+Param79                           00000079
+Param7A                           0000007A
+Param7B                           0000007B
+Param7C                           0000007C
+Param7D                           0000007D
+Param7E                           0000007E
+Param7F                           0000007F
+PortADDRBits                      000000CF
+PortAValue                        00000000
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCREG                             00000199
+RCSTA                             0000019D
+RD                                00000000
+RSEN                              00000001
+RX9                               00000006
+RX9D                              00000000
+RXDTSEL                           00000007
+RX_ELEMENTS                       00000004
+R_NOT_W                           00000002
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000007
+SCIE                              00000005
+SCK                               00000001
+SCKP                              00000004
+SCL                               00000001
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000002
+SDAHT                             00000003
+SDI                               00000002
+SDO1SEL                           00000006
+SDOSEL                            00000006
+SEN                               00000000
+SENDB                             00000003
+SKPB                              
+SKPNB                             
+SMP                               00000007
+SP1BRG                            0000019B
+SP1BRGH                           0000019C
+SP1BRGL                           0000019B
+SPBRG                             0000019B
+SPBRGH                            0000019C
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 39
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SPBRGL                            0000019B
+SPEN                              00000007
+SPLLEN                            00000007
+SRCLK0                            00000004
+SRCLK1                            00000005
+SRCLK2                            00000006
+SRCON0                            0000011A
+SRCON1                            0000011B
+SREN                              00000005
+SRI                               00000001
+SRLEN                             00000007
+SRNQ                              00000005
+SRNQEN                            00000002
+SRPR                              00000000
+SRPS                              00000001
+SRQ                               00000002
+SRQEN                             00000003
+SRRC1E                            00000000
+SRRCKE                            00000002
+SRRPE                             00000003
+SRSC1E                            00000004
+SRSCKE                            00000006
+SRSPE                             00000007
+SS1SEL                            00000005
+SSP1ADD                           00000212
+SSP1BUF                           00000211
+SSP1CON1                          00000215
+SSP1CON2                          00000216
+SSP1CON3                          00000217
+SSP1IE                            00000003
+SSP1IF                            00000003
+SSP1MSK                           00000213
+SSP1STAT                          00000214
+SSPADD                            00000212
+SSPBUF                            00000211
+SSPCON                            00000215
+SSPCON1                           00000215
+SSPCON2                           00000216
+SSPCON3                           00000217
+SSPEN                             00000005
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000213
+SSPOV                             00000006
+SSPSTAT                           00000214
+SSSEL                             00000005
+STATUS                            00000003
+STATUS_SHAD                       00000FE4
+STKOVF                            00000007
+STKPTR                            00000FED
+STKUNF                            00000006
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 40
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+STR1A                             00000000
+STR1B                             00000001
+STR1C                             00000002
+STR1D                             00000003
+STR1SYNC                          00000004
+SUBBF                             
+SW1BtnBit                         PORTA,3
+SWDTEN                            00000000
+SYNC                              00000004
+SysFlags                          0000002E
+SysLEDTrisBit                     TRISA,4
+SystemBlinkDone                   00000018
+SystemBlink_end                   0000001B
+SystemLED                         LATA,4
+T0CKI                             00000002
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+T0XCS                             00000000
+T1CKI                             00000005
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000018
+T1CON_Val                         00000001
+T1GCON                            00000019
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GSEL                            00000003
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GTM                             00000005
+T1GVAL                            00000002
+T1OSCEN                           00000003
+T1OSCR                            00000007
+T1OSI                             00000005
+T1OSO                             00000004
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             0000001C
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+TMR0                              00000015
+TMR0CS                            00000005
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0SE                            00000004
+TMR0Val                           000000B2
+TMR1                              00000016
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 41
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR1CS0                           00000006
+TMR1CS1                           00000007
+TMR1GE                            00000007
+TMR1GIE                           00000007
+TMR1GIF                           00000007
+TMR1H                             00000017
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1L                             00000016
+TMR1ON                            00000000
+TMR2                              0000001A
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2ON                            00000002
+TOSH                              00000FEF
+TOSL                              00000FEE
+TRISA                             0000008C
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRMT                              00000001
+TSEN                              00000005
+TSRNG                             00000004
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+TX9                               00000006
+TX9D                              00000000
+TXCKSEL                           00000002
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXREG                             0000019A
+TXSTA                             0000019E
+TestT1_Zero                       00000196
+TestT2_Zero                       00000193
+TestT3_Zero                       00000190
+TestT4_Zero                       0000018D
+TestTimerIsZero                   
+Timer1Hi                          00000027
+Timer1Lo                          00000026
+Timer2Hi                          00000029
+Timer2Lo                          00000028
+Timer3Hi                          0000002B
+Timer3Lo                          0000002A
+Timer4Hi                          0000002D
+Timer4Lo                          0000002C
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 42
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ToggleSysLED                      0000002C
+UA                                00000001
+UesesCopyToRam                    00000000
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000097
+WDTPS0                            00000001
+WDTPS1                            00000002
+WDTPS2                            00000003
+WDTPS3                            00000004
+WDTPS4                            00000005
+WPUA                              0000020C
+WPUA0                             00000000
+WPUA1                             00000001
+WPUA2                             00000002
+WPUA3                             00000003
+WPUA4                             00000004
+WPUA5                             00000005
+WR                                00000001
+WREG                              00000009
+WREG_SHAD                         00000FE5
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+Z_SHAD                            00000002
+_.org_1_0048                      00000048
+_.org_1_0072                      00000072
+_BOREN_NSLEEP                     0000FDFF
+_BOREN_OFF                        0000F9FF
+_BOREN_ON                         0000FFFF
+_BOREN_SBODEN                     0000FBFF
+_BORV_19                          0000FFFF
+_BORV_HI                          0000FBFF
+_BORV_LO                          0000FFFF
+_C                                STATUS,C
+_CLKOUTEN_OFF                     0000FFFF
+_CLKOUTEN_ON                      0000F7FF
+_CONFIG1                          00008007
+_CONFIG2                          00008008
+_CPD_OFF                          0000FFFF
+_CPD_ON                           0000FEFF
+_CP_OFF                           0000FFFF
+_CP_ON                            0000FF7F
+_DEVID1                           00008006
+_FCMEN_OFF                        0000DFFF
+_FCMEN_ON                         0000FFFF
+_FOSC_ECH                         0000FFFF
+_FOSC_ECL                         0000FFFD
+_FOSC_ECM                         0000FFFE
+_FOSC_EXTRC                       0000FFFB
+_FOSC_HS                          0000FFFA
+_FOSC_INTOSC                      0000FFFC
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 43
+
+F1822 Macros
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_FOSC_LP                          0000FFF8
+_FOSC_XT                          0000FFF9
+_IDLOC0                           00008000
+_IDLOC1                           00008001
+_IDLOC2                           00008002
+_IDLOC3                           00008003
+_IESO_OFF                         0000EFFF
+_IESO_ON                          0000FFFF
+_LVP_OFF                          0000DFFF
+_LVP_ON                           0000FFFF
+_MCLRE_OFF                        0000FFBF
+_MCLRE_ON                         0000FFFF
+_PLLEN_OFF                        0000FEFF
+_PLLEN_ON                         0000FFFF
+_PWRTE_OFF                        0000FFFF
+_PWRTE_ON                         0000FFDF
+_STVREN_OFF                       0000FDFF
+_STVREN_ON                        0000FFFF
+_WDTE_NSLEEP                      0000FFF7
+_WDTE_OFF                         0000FFE7
+_WDTE_ON                          0000FFFF
+_WDTE_SWDTEN                      0000FFEF
+_WRT_ALL                          0000FFFC
+_WRT_BOOT                         0000FFFE
+_WRT_HALF                         0000FFFD
+_WRT_OFF                          0000FFFF
+_Z                                STATUS,Z
+__12F1822                         00000001
+kWDTime                           000000C8
+lastc                             00000022
+oldCode                           00000000
+start                             00000117
+tickcount                         00000023
+useRS232                          00000000
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :    56 reported,     0 suppressed
+
+

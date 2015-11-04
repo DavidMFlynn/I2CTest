@@ -1,0 +1,56 @@
+Message[303] /Projects/I2CTest/TestI2CMaster.asm 58 : Program word too large.  Truncated to core size. (EFA4)
+Message[303] /Projects/I2CTest/TestI2CMaster.asm 73 : Program word too large.  Truncated to core size. (DEFF)
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 275 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 316 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 334 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 198 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 218 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 219 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 233 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 263 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 265 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 266 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 276 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 277 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 333 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 335 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 336 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 338 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 341 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 342 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 384 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 399 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 401 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 402 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 432 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 442 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/I2C_MASTER.inc 453 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 348 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 349 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 350 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 351 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 352 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 353 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 357 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 359 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 379 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 382 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 428 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/TestI2CMaster.asm 430 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 203 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 205 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 206 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 207 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 208 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 230 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 234 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 235 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 236 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 238 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 240 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 242 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 243 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 245 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] /Projects/I2CTest/F1822_Common.inc 246 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[303] /Projects/I2CTest/TestI2CMaster.asm 466 : Program word too large.  Truncated to core size. (EFA4)
+Message[303] /Projects/I2CTest/TestI2CMaster.asm 466 : Program word too large.  Truncated to core size. (DEFF)
