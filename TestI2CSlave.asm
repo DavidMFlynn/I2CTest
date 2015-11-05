@@ -156,8 +156,8 @@ DebounceTime	EQU	d'10'
 ;
 ;
 I2C_ADDRESS	EQU	0x30	; Slave address
-RX_ELEMENTS	EQU	.4	; number of allowable array elements
-I2C_TX_Init_Val	EQU	0xAA	; value to load into transmit array to send to master
+RX_ELEMENTS	EQU	.8	; number of allowable array elements
+I2C_TX_Init_Val	EQU	0xAB	; value to load into transmit array to send to master
 I2C_RX_Init_Val	EQU	0xAA	; value to load into received data array
 ;
 ;================================================================================================

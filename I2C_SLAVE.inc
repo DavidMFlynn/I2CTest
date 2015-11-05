@@ -3,8 +3,8 @@
 ; I2C SLAVE DRIVER CODE
 ;
 ;    Filename:      I2C SLAVE.inc
-;    Date:          4/25/2015
-;    File Version:  1.0.2
+;    Date:          11/4/2015
+;    File Version:  1.0.3
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -16,6 +16,9 @@
 ;
 ;    History:
 ;
+; 1.0.3 11/4/2015	Added ACK to R_Data for partial buffer read support.
+;	Added PCIE (Stop causes interrupt) to end write 
+;	 before all RX_ELEMENTS received.
 ; 1.0.2 4/25/2015	First woring version
 ; 1.0.1  9/4/2014	Modified for 12F1822
 ; 1.0   11/23/2013	Adapted from AN734C
@@ -157,6 +160,7 @@ Init_I2C_L2	movwi	FSR1++
 			; for a received address/data byte, 
 			; ignoring the state of SSPOV bit only if BF bit = 0.
 	bsf	SSP1CON3,SDAHT	; Minimum of 300 ns hold time
+	bsf	SSP1CON3,PCIE	; Stop causes interupt
 	movlw	I2C_ADDRESS	; load the slave address
 	movwf	SSP1ADD
 ;
@@ -189,7 +193,10 @@ R_ADDRESS	movf	SSP1BUF,W	; dummy read to clear BF bit
 	bsf	SSPCON1,CKP	; release clock stretch
 	goto	I2C_READ_Return	; Go to EXIT to return from interrupt
 ;
-R_DATA	movlw	RX_ELEMENTS	; load array elements value
+R_DATA	btfsc	SSP1CON2,ACKSTAT	; ACK* = Master wants another byte
+	goto	R_Data_NACK	;  don't send another
+;
+	movlw	RX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W	; if Z = 1, subtract index from number of elements
 	btfsc	_C	; did a carry occur after subtraction?
 	goto	NO_MEM_OVERWRITE	; if so, Master is trying to write to many bytes
@@ -210,6 +217,9 @@ R_DATA	movlw	RX_ELEMENTS	; load array elements value
 	bsf	SSPCON1,CKP	; release clock stretch
 	goto	I2C_READ_Return 	; Go to EXIT to return from interrupt
 ;
+R_Data_NACK	BCF	I2C_TXLocked
+	goto	I2C_READ_Return
+;
 ;-----------------------------------------------------------------------------------------
 ;
 I2C_WRITE	btfsc	SSP1STAT,D_NOT_A	; was last byte an address or data?
@@ -221,13 +231,17 @@ W_ADDRESS	movf	SSP1BUF,W	; dummy read to clear the BF bit
 	BSF	I2C_RXLocked	; lock data
 	goto	I2C_WRITE_Return 	; Go to EXIT to return from interrupt
 ;
-W_DATA	movlw	RX_ELEMENTS	; load array elements value
+W_DATA	btfsc	SSP1STAT,P	;Stop bit?
+	goto	W_Data_Stop	;  Yes
+	movlw	RX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W	; if Z = 1, subtract index from number of elements
 	btfsc	_C	; did a carry occur after subtraction?
 	goto	NO_MEM_OVERWRITE	; if so, Master is trying to write to many bytes
+;
 	LOADFSR1	I2C_ARRAY_RX,INDEX_I2C
 	movfw	SSP1BUF	; move the contents of the buffer into W
 	movwf 	INDF1	; load INDF1 with data to write
+	BSF	I2C_NewRXData	;new data is available
 ;
 	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
 ;
@@ -238,12 +252,13 @@ W_DATA	movlw	RX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W
 	btfss	_Z
 	goto	W_DATA_1
-	BSF	I2C_NewRXData	;new data is complete
 	BCF	I2C_RXLocked	;unlock data
 ;
 W_DATA_1	bsf	SSPCON1,CKP	; release clock stretch
 	goto	I2C_WRITE_Return 	; Go to EXIT to return from interrupt
 ;
+W_Data_Stop	BCF	I2C_RXLocked	;unlock data
+	goto	I2C_WRITE_Return
 ;-----------------------------------------------------------------------------------------
 ;
 NO_MEM_OVERWRITE	movf	SSP1BUF,W	; clear buffer so no overwrite occurs
