@@ -1,8 +1,8 @@
 ;====================================================================================================
 ;
 ;   Filename:	TestI2CSlave.asm
-;   Date:	4/23/2015
-;   File Version:	1.0d1
+;   Date:	11/5/2015
+;   File Version:	1.0d2
 ;
 ;    Author:	David M. Flynn
 ;    Company:	Oxford V.U.E., Inc.
@@ -14,6 +14,7 @@
 ;
 ;    History:
 ;
+; 1.0d2  11/5/2015	More testing.
 ; 1.0d1  4/23/2015	First code
 ;
 ;====================================================================================================
@@ -81,6 +82,7 @@
 ;
 	constant	oldCode=0
 	constant	useRS232=0
+	constant	useI2CISR=1
 ;
 #Define	_C	STATUS,C
 #Define	_Z	STATUS,Z
@@ -268,6 +270,7 @@ SystemBlink_end
 ;
 IRQ_2:
 ;==================================================================================
+	if useI2CISR
 ;-----------------------------------------------------------------------------------------
 ; I2C Com
 	MOVLB	0x00
@@ -288,6 +291,7 @@ IRQ_5	MOVLB	0x00
 
 IRQ_5_End:
 ;
+	endif
 ;--------------------------------------------------------------------
 ;
 	retfie		; return from interrupt
@@ -377,6 +381,25 @@ MainLoop	CLRWDT
 	CALL	I2C_DataInturp
 ;
 	CALL	I2C_DataSender
+;
+	if useI2CISR==0
+	MOVLB	0x00
+	btfsc	PIR1,SSP1IF 	; Is this a SSP interrupt?
+	call	I2C_ISR
+;
+;-----------------------------------------------------------------------------------------
+; I2C Bus Collision
+IRQ_5	MOVLB	0x00
+	btfss	PIR2,BCL1IF
+	goto	IRQ_5_End
+;
+	banksel	SSP1BUF						
+	movf	SSP1BUF,w	; clear the SSP buffer
+	bsf	SSP1CON1,CKP	; release clock stretch
+	movlb	0x00
+	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag
+IRQ_5_End:	
+	endif
 ;
 	goto	MainLoop
 ;

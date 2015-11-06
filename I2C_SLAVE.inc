@@ -36,6 +36,9 @@
 ;
 ;   I2C_ADDRESS and RX_ELEMENTS must be set and be the same in the master driver.
 ;
+	ifndef useI2CISR
+	constant	useI2CISR=1
+	endif
 ;=========================================================================================
 ;=========================================================================================
 ; What happens next:
@@ -163,9 +166,11 @@ Init_I2C_L2	movwi	FSR1++
 	movlw	I2C_ADDRESS	; load the slave address
 	movwf	SSP1ADD
 ;
+	if useI2CISR
 	movlb	0x01
 	bsf	PIE2,BCL1IE	; enable SSP interrupts
 	bsf	PIE1,SSP1IE	; enable SSP interrupts
+	endif
 	movlb	0x00
 	bcf	PIR1,SSP1IF	; clear the SSP interrupt flag	
 	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag
