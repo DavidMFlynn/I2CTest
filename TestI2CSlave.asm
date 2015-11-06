@@ -156,6 +156,7 @@ DebounceTime	EQU	d'10'
 ;
 ;
 I2C_ADDRESS	EQU	0x30	; Slave address
+TX_ELEMENTS	EQU	.8	; number of allowable array elements
 RX_ELEMENTS	EQU	.8	; number of allowable array elements
 I2C_TX_Init_Val	EQU	0xAB	; value to load into transmit array to send to master
 I2C_RX_Init_Val	EQU	0xAA	; value to load into received data array
@@ -165,7 +166,7 @@ I2C_RX_Init_Val	EQU	0xAA	; value to load into received data array
 ;
 ;
 I2C_Buffers	udata	0xA0
-I2C_ARRAY_TX	RES	RX_ELEMENTS	; array to transmit to master
+I2C_ARRAY_TX	RES	TX_ELEMENTS	; array to transmit to master
 I2C_ARRAY_RX 	RES	RX_ELEMENTS 	; array to receive from master
 ;
 ;=======================================================================================================
@@ -178,10 +179,10 @@ I2C_ARRAY_RX 	RES	RX_ELEMENTS 	; array to receive from master
 	Param71
 	Flags
 ;Globals from I2C_Master.inc
-	INDEX_I2C
+	TX_DataSize		; # of bytes to TX, 1..TX_ELEMENTS	
+	INDEX_I2C		; index used to point to array location
 	GFlags
 ;
-	Param75
 	Param76
 	Param77
 	Param78
@@ -269,30 +270,22 @@ IRQ_2:
 ;==================================================================================
 ;-----------------------------------------------------------------------------------------
 ; I2C Com
-IRQ_4	MOVLB	0x00
-	btfss 	PIR1,SSP1IF 	; Is this a SSP interrupt?
-	goto 	IRQ_4_End 	; if not, bus collision int occurred
-	banksel	SSP1STAT						
-	btfsc	SSP1STAT,R_NOT_W	; is it a master read:
-	goto	I2C_READ	; if so go here
-	goto	I2C_WRITE	; if not, go here
-I2C_READ_Return:
-I2C_WRITE_Return	movlb	0x00
-	bcf 	PIR1,SSP1IF	; clear the SSP interrupt flag
-IRQ_4_End
+	MOVLB	0x00
+	btfsc	PIR1,SSP1IF 	; Is this a SSP interrupt?
+	call	I2C_ISR
+;
 ;-----------------------------------------------------------------------------------------
 ; I2C Bus Collision
 IRQ_5	MOVLB	0x00
 	btfss	PIR2,BCL1IF
 	goto	IRQ_5_End
-	banksel	SSPBUF						
-	clrf	SSPBUF	; clear the SSP buffer
-	movlb	0x00	;banksel PIR2
-	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag	
-	banksel	SSPCON1
-	bsf	SSPCON1,CKP	; release clock stretch
-	movlb	0x00
 ;
+	banksel	SSP1BUF						
+	movf	SSP1BUF,w	; clear the SSP buffer
+	bsf	SSP1CON1,CKP	; release clock stretch
+	movlb	0x00
+	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag	
+
 IRQ_5_End:
 ;
 ;--------------------------------------------------------------------
@@ -389,12 +382,14 @@ MainLoop	CLRWDT
 ;
 ;==============================================================
 ;
-I2C_DataInturp	BTFSC	I2C_RXLocked
+I2C_DataInturp:
+	BTFSC	I2C_RXLocked
 	RETURN
 	BTFSS	I2C_NewRXData	;Data is new?
 	RETURN		; No
 	BCF	I2C_NewRXData
-	CLRF	Param79	;offset
+	MOVLW	0x03
+	MOVWF	Param79	;offset
 	LOADFSR0	I2C_ARRAY_RX,Param79
 	MOVF	INDF0,W
 	MOVWF	Param78
@@ -416,7 +411,8 @@ I2C_DataSender	BTFSC	I2C_TXLocked
 	BTFSS	SW1BtnBit
 	BSF	Param78,0
 ;
-	CLRF	Param79	;offset
+	MOVLW	0x03
+	MOVWF	Param79	;offset
 	LOADFSR0	I2C_ARRAY_TX,Param79
 	MOVF	Param78,W
 	MOVWF	INDF0

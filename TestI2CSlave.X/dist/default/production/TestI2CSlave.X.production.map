@@ -1,12 +1,12 @@
 MPLINK 5.08, LINKER
-Linker Map File - Created Wed Nov  4 16:43:10 2015
+Linker Map File - Created Thu Nov  5 17:28:35 2015
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000006
-                   .org_1       code   0x000004    program   0x0002a0
-                   .cinit    romdata   0x000154    program   0x000004
+                   .org_1       code   0x000004    program   0x0002a2
+                   .cinit    romdata   0x000155    program   0x000004
                   .idlocs       code   0x008000    program   0x000008
 .config_8007_BUILD/DEFAULT/PRODUCTION/_EXT/18       code   0x008007    program   0x000002
 .config_8008_BUILD/DEFAULT/PRODUCTION/_EXT/18       code   0x008008    program   0x000002
@@ -18,65 +18,62 @@ Linker Map File - Created Wed Nov  4 16:43:10 2015
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000002      
-                            0x000004    0x000155      
+                            0x000004    0x000156      
                             0x008000    0x008003      
                             0x008007    0x008008      
-            347 out of 2311 program addresses used, program memory utilization is 15%
+            348 out of 2311 program addresses used, program memory utilization is 15%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                 ClearRam   0x0000fb    program     static /Projects/I2CTest/F1822_Common.inc
-              ClearRam_L2   0x000106    program     static /Projects/I2CTest/F1822_Common.inc
-                 DecTimer   0x000112    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer1   0x000111    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer2   0x00010f    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer3   0x00010d    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer4   0x00010b    program     static /Projects/I2CTest/F1822_Common.inc
-               Delay100uS   0x00012c    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay10uS   0x00012a    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay40uS   0x00012e    program     static /Projects/I2CTest/F1822_Common.inc
-                 DelayWuS   0x00012f    program     static /Projects/I2CTest/F1822_Common.inc
-            DelayWuS_Loop   0x000130    program     static /Projects/I2CTest/F1822_Common.inc
-                   EERead   0x000134    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEReadW   0x000133    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEWrite   0x00013e    program     static /Projects/I2CTest/F1822_Common.inc
-              EEWriteLoop   0x000150    program     static /Projects/I2CTest/F1822_Common.inc
-                 EEWriteW   0x00013d    program     static /Projects/I2CTest/F1822_Common.inc
-           I2C_DataInturp   0x0000d7    program     static /Projects/I2CTest/TestI2CSlave.asm
+                 ClearRam   0x0000fc    program     static /Projects/I2CTest/F1822_Common.inc
+              ClearRam_L2   0x000107    program     static /Projects/I2CTest/F1822_Common.inc
+                 DecTimer   0x000113    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer1   0x000112    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer2   0x000110    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer3   0x00010e    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer4   0x00010c    program     static /Projects/I2CTest/F1822_Common.inc
+               Delay100uS   0x00012d    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay10uS   0x00012b    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay40uS   0x00012f    program     static /Projects/I2CTest/F1822_Common.inc
+                 DelayWuS   0x000130    program     static /Projects/I2CTest/F1822_Common.inc
+            DelayWuS_Loop   0x000131    program     static /Projects/I2CTest/F1822_Common.inc
+                   EERead   0x000135    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEReadW   0x000134    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEWrite   0x00013f    program     static /Projects/I2CTest/F1822_Common.inc
+              EEWriteLoop   0x000151    program     static /Projects/I2CTest/F1822_Common.inc
+                 EEWriteW   0x00013e    program     static /Projects/I2CTest/F1822_Common.inc
+           I2C_DataInturp   0x0000d6    program     static /Projects/I2CTest/TestI2CSlave.asm
            I2C_DataSender   0x0000ec    program     static /Projects/I2CTest/TestI2CSlave.asm
-                 I2C_READ   0x00005a    program     static /Projects/I2CTest/I2C_SLAVE.inc
-          I2C_READ_Return   0x000022    program     static /Projects/I2CTest/TestI2CSlave.asm
-                I2C_WRITE   0x000085    program     static /Projects/I2CTest/I2C_SLAVE.inc
-         I2C_WRITE_Return   0x000022    program     static /Projects/I2CTest/TestI2CSlave.asm
+                  I2C_ISR   0x000055    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                I2C_WRITE   0x000086    program     static /Projects/I2CTest/I2C_SLAVE.inc
                     IRQ_2   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
-                    IRQ_4   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
-                IRQ_4_End   0x000024    program     static /Projects/I2CTest/TestI2CSlave.asm
-                    IRQ_5   0x000024    program     static /Projects/I2CTest/TestI2CSlave.asm
-                IRQ_5_End   0x00002e    program     static /Projects/I2CTest/TestI2CSlave.asm
-                 Init_I2C   0x000035    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              Init_I2C_L1   0x00003c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              Init_I2C_L2   0x000046    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                 MainLoop   0x0000d3    program     static /Projects/I2CTest/TestI2CSlave.asm
-         NO_MEM_OVERWRITE   0x0000a7    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                R_ADDRESS   0x00005c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                   R_DATA   0x00006c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              R_Data_NACK   0x000083    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                    IRQ_5   0x00001e    program     static /Projects/I2CTest/TestI2CSlave.asm
+                IRQ_5_End   0x000026    program     static /Projects/I2CTest/TestI2CSlave.asm
+                 Init_I2C   0x00002d    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              Init_I2C_L1   0x000035    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              Init_I2C_L2   0x00003f    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                 MainLoop   0x0000d2    program     static /Projects/I2CTest/TestI2CSlave.asm
+         NO_MEM_OVERWRITE   0x0000aa    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_ADDRESS   0x00005b    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_Add_ACK   0x000061    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                   R_DATA   0x00006e    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              R_Data_NACK   0x000084    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_PastEnd   0x00007d    program     static /Projects/I2CTest/I2C_SLAVE.inc
           SystemBlinkDone   0x000018    program     static /Projects/I2CTest/TestI2CSlave.asm
           SystemBlink_end   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
-              TestT1_Zero   0x000127    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT2_Zero   0x000124    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT3_Zero   0x000121    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT4_Zero   0x00011e    program     static /Projects/I2CTest/F1822_Common.inc
-             ToggleSysLED   0x00002f    program     static /Projects/I2CTest/TestI2CSlave.asm
-               WRITE_COLL   0x0000aa    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                W_ADDRESS   0x000087    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                   W_DATA   0x00008c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                 W_DATA_1   0x0000a3    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              W_Data_Stop   0x0000a5    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                    start   0x0000ad    program     static /Projects/I2CTest/TestI2CSlave.asm
+              TestT1_Zero   0x000128    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT2_Zero   0x000125    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT3_Zero   0x000122    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT4_Zero   0x00011f    program     static /Projects/I2CTest/F1822_Common.inc
+             ToggleSysLED   0x000027    program     static /Projects/I2CTest/TestI2CSlave.asm
+                    W_ACK   0x00008c    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                W_ADDRESS   0x000088    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                   W_DATA   0x00008e    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              W_Data_Stop   0x0000a8    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                    start   0x0000ac    program     static /Projects/I2CTest/TestI2CSlave.asm
              I2C_ARRAY_RX   0x0000a8       data     static /Projects/I2CTest/TestI2CSlave.asm
              I2C_ARRAY_TX   0x0000a0       data     static /Projects/I2CTest/TestI2CSlave.asm
 
@@ -86,54 +83,51 @@ Linker Map File - Created Wed Nov  4 16:43:10 2015
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
           SystemBlinkDone   0x000018    program     static /Projects/I2CTest/TestI2CSlave.asm
-                    IRQ_4   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
                     IRQ_2   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
           SystemBlink_end   0x00001b    program     static /Projects/I2CTest/TestI2CSlave.asm
-          I2C_READ_Return   0x000022    program     static /Projects/I2CTest/TestI2CSlave.asm
-         I2C_WRITE_Return   0x000022    program     static /Projects/I2CTest/TestI2CSlave.asm
-                IRQ_4_End   0x000024    program     static /Projects/I2CTest/TestI2CSlave.asm
-                    IRQ_5   0x000024    program     static /Projects/I2CTest/TestI2CSlave.asm
-                IRQ_5_End   0x00002e    program     static /Projects/I2CTest/TestI2CSlave.asm
-             ToggleSysLED   0x00002f    program     static /Projects/I2CTest/TestI2CSlave.asm
-                 Init_I2C   0x000035    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              Init_I2C_L1   0x00003c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              Init_I2C_L2   0x000046    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                 I2C_READ   0x00005a    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                R_ADDRESS   0x00005c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                   R_DATA   0x00006c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              R_Data_NACK   0x000083    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                I2C_WRITE   0x000085    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                W_ADDRESS   0x000087    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                   W_DATA   0x00008c    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                 W_DATA_1   0x0000a3    program     static /Projects/I2CTest/I2C_SLAVE.inc
-              W_Data_Stop   0x0000a5    program     static /Projects/I2CTest/I2C_SLAVE.inc
-         NO_MEM_OVERWRITE   0x0000a7    program     static /Projects/I2CTest/I2C_SLAVE.inc
-               WRITE_COLL   0x0000aa    program     static /Projects/I2CTest/I2C_SLAVE.inc
-                    start   0x0000ad    program     static /Projects/I2CTest/TestI2CSlave.asm
-                 MainLoop   0x0000d3    program     static /Projects/I2CTest/TestI2CSlave.asm
-           I2C_DataInturp   0x0000d7    program     static /Projects/I2CTest/TestI2CSlave.asm
+                    IRQ_5   0x00001e    program     static /Projects/I2CTest/TestI2CSlave.asm
+                IRQ_5_End   0x000026    program     static /Projects/I2CTest/TestI2CSlave.asm
+             ToggleSysLED   0x000027    program     static /Projects/I2CTest/TestI2CSlave.asm
+                 Init_I2C   0x00002d    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              Init_I2C_L1   0x000035    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              Init_I2C_L2   0x00003f    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                  I2C_ISR   0x000055    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_ADDRESS   0x00005b    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_Add_ACK   0x000061    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                   R_DATA   0x00006e    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                R_PastEnd   0x00007d    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              R_Data_NACK   0x000084    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                I2C_WRITE   0x000086    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                W_ADDRESS   0x000088    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                    W_ACK   0x00008c    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                   W_DATA   0x00008e    program     static /Projects/I2CTest/I2C_SLAVE.inc
+              W_Data_Stop   0x0000a8    program     static /Projects/I2CTest/I2C_SLAVE.inc
+         NO_MEM_OVERWRITE   0x0000aa    program     static /Projects/I2CTest/I2C_SLAVE.inc
+                    start   0x0000ac    program     static /Projects/I2CTest/TestI2CSlave.asm
+                 MainLoop   0x0000d2    program     static /Projects/I2CTest/TestI2CSlave.asm
+           I2C_DataInturp   0x0000d6    program     static /Projects/I2CTest/TestI2CSlave.asm
            I2C_DataSender   0x0000ec    program     static /Projects/I2CTest/TestI2CSlave.asm
-                 ClearRam   0x0000fb    program     static /Projects/I2CTest/F1822_Common.inc
-              ClearRam_L2   0x000106    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer4   0x00010b    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer3   0x00010d    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer2   0x00010f    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer1   0x000111    program     static /Projects/I2CTest/F1822_Common.inc
-                 DecTimer   0x000112    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT4_Zero   0x00011e    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT3_Zero   0x000121    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT2_Zero   0x000124    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT1_Zero   0x000127    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay10uS   0x00012a    program     static /Projects/I2CTest/F1822_Common.inc
-               Delay100uS   0x00012c    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay40uS   0x00012e    program     static /Projects/I2CTest/F1822_Common.inc
-                 DelayWuS   0x00012f    program     static /Projects/I2CTest/F1822_Common.inc
-            DelayWuS_Loop   0x000130    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEReadW   0x000133    program     static /Projects/I2CTest/F1822_Common.inc
-                   EERead   0x000134    program     static /Projects/I2CTest/F1822_Common.inc
-                 EEWriteW   0x00013d    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEWrite   0x00013e    program     static /Projects/I2CTest/F1822_Common.inc
-              EEWriteLoop   0x000150    program     static /Projects/I2CTest/F1822_Common.inc
+                 ClearRam   0x0000fc    program     static /Projects/I2CTest/F1822_Common.inc
+              ClearRam_L2   0x000107    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer4   0x00010c    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer3   0x00010e    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer2   0x000110    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer1   0x000112    program     static /Projects/I2CTest/F1822_Common.inc
+                 DecTimer   0x000113    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT4_Zero   0x00011f    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT3_Zero   0x000122    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT2_Zero   0x000125    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT1_Zero   0x000128    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay10uS   0x00012b    program     static /Projects/I2CTest/F1822_Common.inc
+               Delay100uS   0x00012d    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay40uS   0x00012f    program     static /Projects/I2CTest/F1822_Common.inc
+                 DelayWuS   0x000130    program     static /Projects/I2CTest/F1822_Common.inc
+            DelayWuS_Loop   0x000131    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEReadW   0x000134    program     static /Projects/I2CTest/F1822_Common.inc
+                   EERead   0x000135    program     static /Projects/I2CTest/F1822_Common.inc
+                 EEWriteW   0x00013e    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEWrite   0x00013f    program     static /Projects/I2CTest/F1822_Common.inc
+              EEWriteLoop   0x000151    program     static /Projects/I2CTest/F1822_Common.inc
              I2C_ARRAY_TX   0x0000a0       data     static /Projects/I2CTest/TestI2CSlave.asm
              I2C_ARRAY_RX   0x0000a8       data     static /Projects/I2CTest/TestI2CSlave.asm
 

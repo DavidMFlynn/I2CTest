@@ -3,8 +3,8 @@
 ; I2C SLAVE DRIVER CODE
 ;
 ;    Filename:      I2C SLAVE.inc
-;    Date:          11/5/2015
-;    File Version:  1.0.4
+;    Date:          11/4/2015
+;    File Version:  1.0.3
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -16,7 +16,6 @@
 ;
 ;    History:
 ;
-; 1.0.4 11/5/2015	Optimized some code. Added AHEN=DHEN=1 clock stretching.
 ; 1.0.3 11/4/2015	Added ACK to R_Data for partial buffer read support.
 ;	Added PCIE (Stop causes interrupt) to end write 
 ;	 before all RX_ELEMENTS received.
@@ -53,16 +52,14 @@
 ;
 ;Note: only upper 7 bits of address are used
 ;I2C_ADDRESS	EQU	0x30	; Slave address
-;TX_ELEMENTS	EQU	.8	; number of allowable array elements
-;RX_ELEMENTS	EQU	.8	; number of allowable array elements
+;RX_ELEMENTS	EQU	.8	; number of allowable array elements, in this case 16
 ;I2C_TX_Init_Val	EQU	0xAA	; value to load into transmit array to send to master
 ;I2C_RX_Init_Val	EQU	0xAA	; value to load into received data array
 ;
 ;------------------------------------ variables-------------------------------------------
 ;
 ;	cblock	0x70									; set up in shared memory for easy access
-;	INDEX_I2C		; index used to point to array location
-;	TX_DataSize		; # of bytes to TX, 1..TX_ELEMENTS	
+;	INDEX_I2C		; index used to point to array location	
 ;	GFlags
 ;	endc
 ;
@@ -71,7 +68,7 @@
 ;#Define	I2C_NewRXData	GFlags,2	; Set by ISR, The new data is here!
 ;
 ;I2C_Buffers	udata	0xA0
-;I2C_ARRAY_TX	RES	TX_ELEMENTS	; array to transmit to master
+;I2C_ARRAY_TX	RES	RX_ELEMENTS	; array to transmit to master
 ;I2C_ARRAY_RX 	RES	RX_ELEMENTS 	; array to receive from master
 ;	
 ;=========================================================================================
@@ -79,24 +76,31 @@
 ;
 ;-----------------------------------------------------------------------------------------
 ; I2C Com
-;	MOVLB	0x00
-;	btfsc	PIR1,SSP1IF 	; Is this a SSP interrupt?
-;	call	I2C_ISR
-;	movlb	0
-;
+;IRQ_4	MOVLB	0x00
+;	btfss 	PIR1,SSP1IF 	; Is this a SSP interrupt?
+;	goto 	IRQ_4_End 	; if not, bus collision int occurred
+;	banksel	SSP1STAT						
+;	btfsc	SSP1STAT,R_NOT_W	; is it a master read:
+;	goto	I2C_READ	; if so go here
+;	goto	I2C_WRITE	; if not, go here
+;I2C_READ_Return
+;I2C_WRITE_Return	movlb	0x00
+;	bcf 	PIR1,SSP1IF	; clear the SSP interrupt flag
+;IRQ_4_End
 ;-----------------------------------------------------------------------------------------
 ; I2C Bus Collision
 ;IRQ_5	MOVLB	0x00
 ;	btfss	PIR2,BCL1IF
 ;	goto	IRQ_5_End
-;
-;	banksel	SSP1BUF						
-;	movf	SSP1BUF,w	; clear the SSP buffer
-;	bsf	SSP1CON1,CKP	; release clock stretch
-;	movlb	0x00
+;	banksel	SSPBUF						
+;	clrf	SSPBUF	; clear the SSP buffer
+;	movlb	0x00	;banksel PIR2
 ;	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag	
+;	banksel	SSPCON1
+;	bsf	SSPCON1,CKP	; release clock stretch
+;	movlb	0x00
 ;
-;IRQ_5_End:
+;IRQ_5_End
 ;
 ;=========================================================================================
 ;
@@ -128,9 +132,8 @@ Init_I2C:
 	movwf	FSR1L
 	movlw	high I2C_ARRAY_TX
 	movwf	FSR1H
-	movlw	TX_ELEMENTS
+	movlw	RX_ELEMENTS
 	movwf	INDEX_I2C
-	movwf	TX_DataSize
 	movlw	I2C_TX_Init_Val
 Init_I2C_L1	movwi	FSR1++
 	decfsz	INDEX_I2C,F
@@ -148,7 +151,7 @@ Init_I2C_L2	movwi	FSR1++
 	goto	Init_I2C_L2
 ;
 ;I2C set up
-	banksel	SSP1STAT
+	banksel	SSPSTAT
 	bsf	SSP1STAT,SMP	; Slew rate control disabled for standard speed mode
 	movlw	b'00110110'	; Enable serial port, I2C slave mode, 7-bit address
 	movwf	SSP1CON1
@@ -158,8 +161,6 @@ Init_I2C_L2	movwi	FSR1++
 			; ignoring the state of SSPOV bit only if BF bit = 0.
 	bsf	SSP1CON3,SDAHT	; Minimum of 300 ns hold time
 	bsf	SSP1CON3,PCIE	; Stop causes interupt
-	bsf	SSP1CON3,AHEN	; Enable address holding, CKP must be set after each byte
-	bsf	SSP1CON3,DHEN	; Enable data holding
 	movlw	I2C_ADDRESS	; load the slave address
 	movwf	SSP1ADD
 ;
@@ -175,105 +176,100 @@ Init_I2C_L2	movwi	FSR1++
 ; Interrupt Service Routines (ISR)
 ;=========================================================================================
 ;
-I2C_ISR:
-	bcf 	PIR1,SSP1IF	; clear the SSP interrupt flag
-	banksel	SSP1STAT						
-	btfss	SSP1STAT,R_NOT_W	; is it a master read:
-	goto	I2C_WRITE
-; I2C_READ
-	btfsc	SSP1STAT,D_NOT_A	; was last byte an address or data?
+I2C_READ	btfsc	SSP1STAT,D_NOT_A	; was last byte an address or data?
 	goto	R_DATA	; if set, it was data
 ;	
-R_ADDRESS	bcf	SSP1CON2,ACKDT
-	btfss	SSP1CON3,ACKTIM
-	goto	R_Add_ACK
-	movf	SSP1BUF,W	; dummy read to clear BF bit
-	bsf	SSP1CON1,CKP	; release clock stretch
-	return	
-;
-R_Add_ACK	clrf	INDEX_I2C	; clear index pointer
+R_ADDRESS	movf	SSP1BUF,W	; dummy read to clear BF bit
+	clrf	INDEX_I2C	; clear index pointer
 	LOADFSR1	I2C_ARRAY_TX,INDEX_I2C
 	movf	INDF1,W	; move value into W to load to SSP buffer
 	movwf	SSP1BUF	; load SSP buffer
-	bsf	SSP1CON1,CKP
+;
+	btfsc	SSP1CON1,WCOL	; did a write collision occur?				
+	call	WRITE_COLL	; if so, go clear bit
 ;
 	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
 	bsf	I2C_TXLocked	; lock data
-	return
-;
-;----------------
+	bsf	SSPCON1,CKP	; release clock stretch
+	goto	I2C_READ_Return	; Go to EXIT to return from interrupt
 ;
 R_DATA	btfsc	SSP1CON2,ACKSTAT	; ACK* = Master wants another byte
 	goto	R_Data_NACK	;  don't send another
 ;
-	movf	TX_DataSize,W	; load array elements to TX
+	movlw	RX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W	; if Z = 1, subtract index from number of elements
-	CLRW		;default to sending 0, filler byte
 	btfsc	_C	; did a carry occur after subtraction?
-	goto	R_PastEnd	; if so, Master is trying to read to many bytes
+	goto	NO_MEM_OVERWRITE	; if so, Master is trying to write to many bytes
 	LOADFSR1	I2C_ARRAY_TX,INDEX_I2C
-	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
 	movf	INDF1,W	; move value into W to load to SSP buffer
-R_PastEnd	movwf	SSP1BUF	; load SSP buffer
+	movwf	SSP1BUF	; load SSP buffer
 ;
-	movf	TX_DataSize,W
+	btfsc	SSPCON1,WCOL	; did a write collision occur?
+	call	WRITE_COLL	; if so, go clear bit
+;
+	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
+;
+	movlw	RX_ELEMENTS
 	subwf	INDEX_I2C,W
 	btfsc	_Z
-	BCF	I2C_TXLocked
-	bsf	SSP1CON1,CKP
-	return
+	BCF	I2C_TXLocked	;unlock data
 ;
-R_Data_NACK	BCF	I2C_TXLocked	;unlock data
-	Return 
+	bsf	SSPCON1,CKP	; release clock stretch
+	goto	I2C_READ_Return 	; Go to EXIT to return from interrupt
+;
+R_Data_NACK	BCF	I2C_TXLocked
+	goto	I2C_READ_Return
 ;
 ;-----------------------------------------------------------------------------------------
 ;
 I2C_WRITE	btfsc	SSP1STAT,D_NOT_A	; was last byte an address or data?
 	goto	W_DATA	; if set, it was data
 ;
-W_ADDRESS	bcf	SSP1CON2,ACKDT	;We will ACK*
-	movf	SSP1BUF,W	; dummy read to clear the BF bit
+W_ADDRESS	movf	SSP1BUF,W	; dummy read to clear the BF bit
 	clrf	INDEX_I2C	; clear index pointer
+	bsf	SSP1CON1,CKP	; release clock stretch
 	BSF	I2C_RXLocked	; lock data
-W_ACK	bsf	SSP1CON1,CKP	; release clock stretch
-	return
+	goto	I2C_WRITE_Return 	; Go to EXIT to return from interrupt
 ;
 W_DATA	btfsc	SSP1STAT,P	;Stop bit?
 	goto	W_Data_Stop	;  Yes
-;
-	btfss	SSP1CON3,ACKTIM	;Data arrived?
-	goto	W_ACK	; no, just an outgoing ACK*	
-;	
-	btfss	SSP1STAT,BF	;Buffer full?
-	return		; no
-;
-	bsf	SSP1CON1,CKP	; release clock stretch
 	movlw	RX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W	; if Z = 1, subtract index from number of elements
 	btfsc	_C	; did a carry occur after subtraction?
 	goto	NO_MEM_OVERWRITE	; if so, Master is trying to write to many bytes
 ;
 	LOADFSR1	I2C_ARRAY_RX,INDEX_I2C
-	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
-	movf	SSP1BUF,W	; move the contents of the buffer into W
+	movfw	SSP1BUF	; move the contents of the buffer into W
 	movwf 	INDF1	; load INDF1 with data to write
 	BSF	I2C_NewRXData	;new data is available
 ;
+	incf	INDEX_I2C,F	; increment INDEX_I2C 'pointer'
+;
+	btfsc	SSP1CON1,WCOL	; did a write collision occur?
+	call	WRITE_COLL	; if so, go clear bit
+;
 	movlw	RX_ELEMENTS
 	subwf	INDEX_I2C,W
-	SKPZ		;Last byte?
-	return		; no
-	bsf	SSP1CON2,ACKDT	;Yes, We will not ACK*
-;	
-W_Data_Stop	BCF	I2C_RXLocked	;unlock data
-	return	
+	btfss	_Z
+	goto	W_DATA_1
+	BCF	I2C_RXLocked	;unlock data
 ;
+W_DATA_1	bsf	SSPCON1,CKP	; release clock stretch
+	goto	I2C_WRITE_Return 	; Go to EXIT to return from interrupt
+;
+W_Data_Stop	BCF	I2C_RXLocked	;unlock data
+	goto	I2C_WRITE_Return
 ;-----------------------------------------------------------------------------------------
 ;
 NO_MEM_OVERWRITE	movf	SSP1BUF,W	; clear buffer so no overwrite occurs
-	return
+	bsf	SSP1CON1,CKP	; release clock stretch
+	goto	I2C_WRITE_Return 	; Go to EXIT to return from interrupt
 ;
 ;-----------------------------------------------------------------------------------------
+;
+WRITE_COLL	bcf	SSP1CON1,WCOL	; clear WCOL bit
+	movf	SSP1BUF,W	; dummy read to clear the BF bit
+	return
 ;
 ;
 ;	

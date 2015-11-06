@@ -1,4 +1,4 @@
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  1
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00051 ;
                       00052         list    p=12f1822,r=hex,w=0     ; list directive to define processor
                       00053 ;
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  2
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ Message[303]: Program word too large.  Truncated to core size. (DEFF)
                       00097 ;
                       00098 ;    Port A bits
   000000CF            00099 PortADDRBits    EQU     b'11001111'
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  3
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  3
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
   0000002A            00150         Timer3Lo                ;3rd 16 bit timer
   0000002B            00151         Timer3Hi                ;GP wait timer
                       00152 ;
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  4
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  4
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
   0000007C            00203         Param7C
   0000007D            00204         Param7D
   0000007E            00205         Param7E
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  5
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  5
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -293,7 +293,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0004   0188           00255         CLRF    BSR     ; bank0
                       00256 ;
                       00257 ;
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  6
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  6
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -352,7 +352,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0022   0020           00307 I2C_Write_Return        movlb   0x00
 0023   1191           00308         bcf     PIR1,SSP1IF     ; clear the SSP interrupt flag
 0024                  00309 IRQ_4_End
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  7
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  7
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -411,7 +411,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00017 ;    History:
                       00018 ;
                       00019 ; 1.0.4  11/4/2015      Bug fixes.
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  8
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  8
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -470,7 +470,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00070 ;
                       00071 ;I2C_READ
                       00072 ; enable receive        clr I2C_SET_RCEN set I2C_REC_BYTE
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE  9
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE  9
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -529,7 +529,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00122 ;#Define        I2C_Init_Start  GFlags,3        ; used to set bit for start sequence
                       00123 ;#Define        I2C_Write_Seq_Active    GFlags,4        ; used for write sequence
                       00124 ;#Define        I2C_Stop_Asserted       GFlags,5        ; used to set bit for stop sequence
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 10
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 10
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -588,7 +588,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00174 ;       movlb   0x04    ;banksel SSPBUF                                         
                       00175 ;       clrf    SSP1BUF ; clear the SSP buffer
                       00176 ;       movlb   0x00    ;banksel PIR2
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 11
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 11
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -647,7 +647,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00224 ;  read sequence
                       00225 ;
 004A   1DF5           00226 Idle_I2C_Read   btfss   I2C_Read_Seq_Active     ; make sure read sequence is set
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 12
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 12
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -706,7 +706,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 006D   16F4           00273         bsf     I2C_Stop_Asserted       ; if so, set up stop
 006E   1175           00274         bcf     I2C_REC_COMPLETE        ; clear receive complete bit
 006F   0024           00275         banksel SSP1CON2
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 13
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 13
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -765,7 +765,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 008B   0BF3           00324         decfsz  INDEX_I2C,F
 008C   2???           00325         goto    Init_I2C_L2
                       00326 ;
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 14
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 14
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -824,7 +824,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00371 ;=========================================================================================
                       00372 ;
                       00373 ; DATA TRANSMISSION SEQUENCE OF EVENTS
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 15
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 15
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -883,7 +883,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00420 ;
                       00421 ;=========================================================================================
                       00422 ; READ FROM SLAVE SEQUENCE OF EVENTS
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 16
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 16
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -942,7 +942,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00F1   2???           00470         goto    I2C_READ_Return
 00F2   12F4           00471         bcf     I2C_Stop_Asserted       ; if so, clear stop
 00F3   11F5           00472         bcf     I2C_Read_Seq_Active     ; and we are done
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 17
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 17
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1001,7 +1001,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00523 ;       
                       00524 
                       00525 
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 18
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 18
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1060,7 +1060,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0125   0098           00366         MOVWF   T1CON
 0126   1399           00367         bcf     T1GCON,TMR1GE
                       00368 ;
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 19
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 19
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1119,71 +1119,73 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0142   0008           00417         RETURN          ; Yes
 0143   1C76           00418         BTFSS   I2C_NewRXData   ;Data is new?
 0144   0008           00419         RETURN          ; No
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 20
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 20
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
 0145   1076           00420         BCF     I2C_NewRXData
-0146   01F9           00421         CLRF    Param79 ;offset
-                      00422         LOADFSR0        I2C_ARRAY_RX,Param79
-0147   30??               M         movlw   low I2C_ARRAY_RX ; load address                                          
-0148   0779               M         addwf   Param79,W ; add the index value to determine location in array
-0149   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
-014A   0185               M         clrf    FSR0H
-014B   30??               M         movlw   high I2C_ARRAY_RX
-014C   3D85               M         addwfc  FSR0H,F
-014D   0800           00423         MOVF    INDF0,W
-014E   00F8           00424         MOVWF   Param78
-                      00425 ;
-014F   0022           00426         MOVLB   0x02
-0150   1C78           00427         BTFSS   Param78,0
+0146   3003           00421         MOVLW   0x03
+0147   00F9           00422         MOVWF   Param79 ;offset
+                      00423         LOADFSR0        I2C_ARRAY_RX,Param79
+0148   30??               M         movlw   low I2C_ARRAY_RX ; load address                                          
+0149   0779               M         addwf   Param79,W ; add the index value to determine location in array
+014A   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
+014B   0185               M         clrf    FSR0H
+014C   30??               M         movlw   high I2C_ARRAY_RX
+014D   3D85               M         addwfc  FSR0H,F
+014E   0800           00424         MOVF    INDF0,W
+014F   00F8           00425         MOVWF   Param78
+                      00426 ;
+0150   0022           00427         MOVLB   0x02
+0151   1C78           00428         BTFSS   Param78,0
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0151   128C           00428         BCF     LED1Bit
-0152   1878           00429         BTFSC   Param78,0
+0152   128C           00429         BCF     LED1Bit
+0153   1878           00430         BTFSC   Param78,0
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0153   168C           00430         BSF     LED1Bit
-0154   0020           00431         MOVLB   0x00
-0155   0008           00432         RETURN
-                      00433 ;
-                      00434 ;==============================================================
-                      00435 ;
-0156   1874           00436 I2C_DataSender  BTFSC   I2C_TXLocked
-0157   0008           00437         RETURN
-                      00438 ;
-0158   01F8           00439         CLRF    Param78
-0159   1D8C           00440         BTFSS   SW1BtnBit
-015A   1478           00441         BSF     Param78,0
-                      00442 ;
-015B   01F9           00443         CLRF    Param79 ;offset
-                      00444         LOADFSR0        I2C_ARRAY_TX,Param79
-015C   30??               M         movlw   low I2C_ARRAY_TX ; load address                                          
-015D   0779               M         addwf   Param79,W ; add the index value to determine location in array
-015E   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
-015F   0185               M         clrf    FSR0H
-0160   30??               M         movlw   high I2C_ARRAY_TX
-0161   3D85               M         addwfc  FSR0H,F
-0162   0878           00445         MOVF    Param78,W
-0163   0200           00446         SUBWF   INDF0,W
-0164   1903           00447         SKPNZ
-0165   0008           00448         RETURN
-                      00449 ;
-0166   14F6           00450         bsf     I2C_NewDataToTX
-0167   0878           00451         MOVF    Param78,W
-0168   0080           00452         MOVWF   INDF0
-                      00453 ;
-0169   0008           00454         RETURN
-                      00455 ;=========================================================================================
-                      00456 ;=========================================================================================
-                      00457 ;
-                      00458         include F1822_Common.inc
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 21
+0154   168C           00431         BSF     LED1Bit
+0155   0020           00432         MOVLB   0x00
+0156   0008           00433         RETURN
+                      00434 ;
+                      00435 ;==============================================================
+                      00436 ;
+0157   1874           00437 I2C_DataSender  BTFSC   I2C_TXLocked
+0158   0008           00438         RETURN
+                      00439 ;
+0159   01F8           00440         CLRF    Param78
+015A   1D8C           00441         BTFSS   SW1BtnBit
+015B   1478           00442         BSF     Param78,0
+                      00443 ;
+015C   3003           00444         MOVLW   0x03
+015D   00F9           00445         MOVWF   Param79 ;offset
+                      00446         LOADFSR0        I2C_ARRAY_TX,Param79
+015E   30??               M         movlw   low I2C_ARRAY_TX ; load address                                          
+015F   0779               M         addwf   Param79,W ; add the index value to determine location in array
+0160   0084               M         movwf   FSR0L   ; load FSR0L with pointer info
+0161   0185               M         clrf    FSR0H
+0162   30??               M         movlw   high I2C_ARRAY_TX
+0163   3D85               M         addwfc  FSR0H,F
+0164   0878           00447         MOVF    Param78,W
+0165   0200           00448         SUBWF   INDF0,W
+0166   1903           00449         SKPNZ
+0167   0008           00450         RETURN
+                      00451 ;
+0168   14F6           00452         bsf     I2C_NewDataToTX
+0169   0878           00453         MOVF    Param78,W
+016A   0080           00454         MOVWF   INDF0
+                      00455 ;
+016B   0008           00456         RETURN
+                      00457 ;=========================================================================================
+                      00458 ;=========================================================================================
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 21
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+                      00459 ;
+                      00460         include F1822_Common.inc
                       00001 ;=========================================================================================
                       00002 ; Commonly used routines PIC16F1822 version
                       00003 ;
@@ -1235,14 +1237,14 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00049 ; GetSerIn      Get a byte from the serial input buffer, FSR0
                       00050 ; GetSerOutBytes        Get the number of bytes in the serial ouput buffer
                       00051 ; StoreSerOut   Put the byte in W into the serial output buffer, FSR0
-                      00052 ; POP_SerOut    Remove the last char stored in the output buffer
-                      00053 ; GetSerOut     Get a byte from the serial Output buffer, FSR0
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 22
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 22
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+                      00052 ; POP_SerOut    Remove the last char stored in the output buffer
+                      00053 ; GetSerOut     Get a byte from the serial Output buffer, FSR0
                       00054 ;
                       00055 ;=========================================================================================
                       00056 ; Clears all RAM
@@ -1251,24 +1253,24 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00059 ; RAM used: All
                       00060 ; Calls:(2+0) ClearRam_L2
                       00061 ;
-016A   0020           00062 ClearRam        MOVLB   0x00
-016B   305F           00063         MOVLW   0x5F    ;Clear 20h-7Eh, 95 bytes
-016C   00FF           00064         MOVWF   Param7F
-016D   3020           00065         MOVLW   0x20
-016E   0084           00066         MOVWF   FSR0
-016F   0185           00067         CLRF    FSR0H
-0170   2???           00068         CALL    ClearRam_L2
+016C   0020           00062 ClearRam        MOVLB   0x00
+016D   305F           00063         MOVLW   0x5F    ;Clear 20h-7Eh, 95 bytes
+016E   00FF           00064         MOVWF   Param7F
+016F   3020           00065         MOVLW   0x20
+0170   0084           00066         MOVWF   FSR0
+0171   0185           00067         CLRF    FSR0H
+0172   2???           00068         CALL    ClearRam_L2
                       00069 ;
-0171   3020           00070         MOVLW   0x20    ;Clear A0h-BFh, 32 bytes
-0172   00FF           00071         MOVWF   Param7F
-0173   30A0           00072         MOVLW   0xA0
-0174   0084           00073         MOVWF   FSR0
+0173   3020           00070         MOVLW   0x20    ;Clear A0h-BFh, 32 bytes
+0174   00FF           00071         MOVWF   Param7F
+0175   30A0           00072         MOVLW   0xA0
+0176   0084           00073         MOVWF   FSR0
                       00074 ;
-0175   0180           00075 ClearRam_L2     CLRF    INDF0
-0176   0A84           00076         INCF    FSR0,F
-0177   0BFF           00077         DECFSZ  Param7F,F
-0178   2???           00078         GOTO    ClearRam_L2
-0179   0008           00079         RETURN
+0177   0180           00075 ClearRam_L2     CLRF    INDF0
+0178   0A84           00076         INCF    FSR0,F
+0179   0BFF           00077         DECFSZ  Param7F,F
+017A   2???           00078         GOTO    ClearRam_L2
+017B   0008           00079         RETURN
                       00080 ;
                       00081         ifndef UesesCopyToRam
                       00082         constant UesesCopyToRam=0
@@ -1294,14 +1296,14 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00102         INCF    EEAddrTemp,F
                       00103         GOTO    CopyToRam_L1
                       00104 ;
-                      00105 ;===========================================================================
-                      00106 ; copy ram to param memory
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 23
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 23
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+                      00105 ;===========================================================================
+                      00106 ; copy ram to param memory
                       00107 ;
                       00108 SaveParams:
                       00109         BankSel EEAddrTemp
@@ -1327,67 +1329,67 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                             ==
                       00129 ; Decrement routine for 16 bit timers
                       00130 ;
-017A   302D           00131 DecTimer4       movlw   Timer4Hi
-017B   2???           00132         goto    DecTimer
-017C   302B           00133 DecTimer3       movlw   Timer3Hi
-017D   2???           00134         goto    DecTimer
-017E   3029           00135 DecTimer2       movlw   Timer2Hi
-017F   2???           00136         goto    DecTimer
-0180   3027           00137 DecTimer1       movlw   Timer1Hi
+017C   302D           00131 DecTimer4       movlw   Timer4Hi
+017D   2???           00132         goto    DecTimer
+017E   302B           00133 DecTimer3       movlw   Timer3Hi
+017F   2???           00134         goto    DecTimer
+0180   3029           00135 DecTimer2       movlw   Timer2Hi
+0181   2???           00136         goto    DecTimer
+0182   3027           00137 DecTimer1       movlw   Timer1Hi
                       00138 ;DecTimer
                       00139 ; entry: FSR=Timer(n)Hi
-0181   0084           00140 DecTimer        MOVWF   FSR0
-0182   0800           00141         MOVF    INDF0,W ;TimerNHi
-0183   0384           00142         DECF    FSR0,F
-0184   0400           00143         IORWF   INDF0,W ;TimerNLo
-0185   1903           00144         SKPNZ
-0186   0008           00145         RETURN
-0187   3001           00146         MOVLW   0x01
-0188   0280           00147         SUBWF   INDF0,F ;TimerNLo
-0189   0A84           00148         INCF    FSR0,F
-018A   3000           00149         MOVLW   0x00
-018B   3B80           00150         SUBWFB  INDF0,F ;TimerNHi
-018C   0008           00151         RETURN
+0183   0084           00140 DecTimer        MOVWF   FSR0
+0184   0800           00141         MOVF    INDF0,W ;TimerNHi
+0185   0384           00142         DECF    FSR0,F
+0186   0400           00143         IORWF   INDF0,W ;TimerNLo
+0187   1903           00144         SKPNZ
+0188   0008           00145         RETURN
+0189   3001           00146         MOVLW   0x01
+018A   0280           00147         SUBWF   INDF0,F ;TimerNLo
+018B   0A84           00148         INCF    FSR0,F
+018C   3000           00149         MOVLW   0x00
+018D   3B80           00150         SUBWFB  INDF0,F ;TimerNHi
+018E   0008           00151         RETURN
                       00152 ;
                       00153 ;==============================================================================================
                       00154 ; Test for 16 bit timers = zero
                       00155 ;If Timer is zero return Z flag,1 else Z=0
                       00156 ;
-018D   082C           00157 TestT4_Zero     movf    Timer4Lo,W
-018E   042D           00158         iorwf   Timer4Hi,W
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 24
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 24
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-018F   0008           00159         return
+018F   082C           00157 TestT4_Zero     movf    Timer4Lo,W
+0190   042D           00158         iorwf   Timer4Hi,W
+0191   0008           00159         return
                       00160 ;
-0190   082A           00161 TestT3_Zero     movf    Timer3Lo,W
-0191   042B           00162         iorwf   Timer3Hi,W
-0192   0008           00163         return
+0192   082A           00161 TestT3_Zero     movf    Timer3Lo,W
+0193   042B           00162         iorwf   Timer3Hi,W
+0194   0008           00163         return
                       00164 ;
-0193   0828           00165 TestT2_Zero     movf    Timer2Lo,W
-0194   0429           00166         iorwf   Timer2Hi,W
-0195   0008           00167         return
+0195   0828           00165 TestT2_Zero     movf    Timer2Lo,W
+0196   0429           00166         iorwf   Timer2Hi,W
+0197   0008           00167         return
                       00168 ;
-0196   0826           00169 TestT1_Zero     movf    Timer1Lo,W
-0197   0427           00170         iorwf   Timer1Hi,W
-0198   0008           00171         return  
+0198   0826           00169 TestT1_Zero     movf    Timer1Lo,W
+0199   0427           00170         iorwf   Timer1Hi,W
+019A   0008           00171         return  
                       00172 ;
                       00173 ;======================================================================================
                       00174 ;Delay uS    1 cycle = 1uS, 8Mhz clock version
                       00175 ; RAM used: Param77
                       00176 ; Calls:(0) none
-0199   3005           00177 Delay10uS       MOVLW   0x05    ;(2*3+5)/2=10
-019A   2???           00178         GOTO    DelayWuS
-019B   3041           00179 Delay100uS      MOVLW   d'65'   ;(28*3+5)/2=100
-019C   2???           00180         GOTO    DelayWuS
-019D   3019           00181 Delay40uS       MOVLW   d'25'   ;(11*3+5)=40
-019E   00F7           00182 DelayWuS        MOVWF   Param77
-019F   0BF7           00183 DelayWuS_Loop   DECFSZ  Param77,F
-01A0   2???           00184         GOTO    DelayWuS_Loop
-01A1   0008           00185         RETURN
+019B   3005           00177 Delay10uS       MOVLW   0x05    ;(2*3+5)/2=10
+019C   2???           00178         GOTO    DelayWuS
+019D   3041           00179 Delay100uS      MOVLW   d'65'   ;(28*3+5)/2=100
+019E   2???           00180         GOTO    DelayWuS
+019F   3019           00181 Delay40uS       MOVLW   d'25'   ;(11*3+5)=40
+01A0   00F7           00182 DelayWuS        MOVWF   Param77
+01A1   0BF7           00183 DelayWuS_Loop   DECFSZ  Param77,F
+01A2   2???           00184         GOTO    DelayWuS_Loop
+01A3   0008           00185         RETURN
                       00186 ;
                       00187 ;==============================================================================================
                       00188 ; Read EEPROM
@@ -1395,7 +1397,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00190 ;        Bank 0 selected
                       00191 ; exit: W=EEDATA, Bank 0 selected
                       00192 ;
-01A2   00A4           00193 EEReadW movwf   EEAddrTemp
+01A4   00A4           00193 EEReadW movwf   EEAddrTemp
                       00194 ;
                       00195 ;==============================================================================================
                       00196 ; Read EEPROM
@@ -1403,27 +1405,27 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00198 ;        Bank 0 selected
                       00199 ; exit: W=EEDATA, Bank 0 selected
                       00200 ;
-01A3   0824           00201 EERead  MOVF    EEAddrTemp,W    ;Data Memory
-01A4   0023           00202         BANKSEL EEADRL
+01A5   0824           00201 EERead  MOVF    EEAddrTemp,W    ;Data Memory
+01A6   0023           00202         BANKSEL EEADRL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01A5   0091           00203         MOVWF   EEADRL  ;Address to read
+01A7   0091           00203         MOVWF   EEADRL  ;Address to read
                       00204 ;
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01A6   1315           00205         BCF     EECON1,CFGS     ;Deselect Config space
+01A8   1315           00205         BCF     EECON1,CFGS     ;Deselect Config space
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01A7   1395           00206         BCF     EECON1,EEPGD    ;Point to DATA memory
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01A8   1415           00207         BSF     EECON1,RD       ;EE Read
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 25
+01A9   1395           00206         BCF     EECON1,EEPGD    ;Point to DATA memory
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 25
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01A9   0813           00208         MOVF    EEDATL,W        ;W = EEDATL
-01AA   0020           00209         MOVLB   0x00    ;Bank 0
-01AB   0008           00210         return
+01AA   1415           00207         BSF     EECON1,RD       ;EE Read
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+01AB   0813           00208         MOVF    EEDATL,W        ;W = EEDATL
+01AC   0020           00209         MOVLB   0x00    ;Bank 0
+01AD   0008           00210         return
                       00211 ;       
                       00212 ;==============================================================================================
                       00213 ; Write EEPROM
@@ -1432,7 +1434,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00216 ;        Bank 0 selected
                       00217 ; exit: Bank 0 selected
                       00218 ;
-01AC   00A4           00219 EEWriteW        movwf   EEAddrTemp
+01AE   00A4           00219 EEWriteW        movwf   EEAddrTemp
                       00220 ;
                       00221 ;==============================================================================================
                       00222 ; Write EEPROM
@@ -1441,44 +1443,44 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00225 ;        Bank 0 selected
                       00226 ; exit: Bank 0 selected
                       00227 ;
-01AD   0824           00228 EEWrite MOVF    EEAddrTemp,W
-01AE   0023           00229         BANKSEL EEADRL
+01AF   0824           00228 EEWrite MOVF    EEAddrTemp,W
+01B0   0023           00229         BANKSEL EEADRL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01AF   0091           00230         MOVWF   EEADRL  ;Data Memory Address to write
-01B0   0020           00231         BankSel EEDataTemp
-01B1   0825           00232         MOVF    EEDataTemp,W
-01B2   0023           00233         BANKSEL EEDATL
+01B1   0091           00230         MOVWF   EEADRL  ;Data Memory Address to write
+01B2   0020           00231         BankSel EEDataTemp
+01B3   0825           00232         MOVF    EEDataTemp,W
+01B4   0023           00233         BANKSEL EEDATL
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01B3   0093           00234         MOVWF   EEDATL  ;Data Memory Value to write
+01B5   0093           00234         MOVWF   EEDATL  ;Data Memory Value to write
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01B4   1315           00235         BCF     EECON1,CFGS     ;Deselect Configuration space
+01B6   1315           00235         BCF     EECON1,CFGS     ;Deselect Configuration space
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01B5   1395           00236         BCF     EECON1,EEPGD    ;Point to DATA memory
-01B6   138B           00237         BCF     INTCON,GIE      ;Disable INTs.
+01B7   1395           00236         BCF     EECON1,EEPGD    ;Point to DATA memory
+01B8   138B           00237         BCF     INTCON,GIE      ;Disable INTs.
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01B7   1515           00238         BSF     EECON1,WREN     ;Enable writes
-01B8   3055           00239         MOVLW   0x55
+01B9   1515           00238         BSF     EECON1,WREN     ;Enable writes
+01BA   3055           00239         MOVLW   0x55
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01B9   0096           00240         MOVWF   EECON2  ;Write 55h
-01BA   30AA           00241         MOVLW   0xAA
+01BB   0096           00240         MOVWF   EECON2  ;Write 55h
+01BC   30AA           00241         MOVLW   0xAA
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01BB   0096           00242         MOVWF   EECON2  ;Write AAh
+01BD   0096           00242         MOVWF   EECON2  ;Write AAh
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01BC   1495           00243         BSF     EECON1,WR       ;Set WR bit to begin write
-01BD   178B           00244         BSF     INTCON,GIE      ;Enable Interrupts
+01BE   1495           00243         BSF     EECON1,WR       ;Set WR bit to begin write
+01BF   178B           00244         BSF     INTCON,GIE      ;Enable Interrupts
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01BE   1115           00245         BCF     EECON1,WREN     ;Disable writes
+01C0   1115           00245         BCF     EECON1,WREN     ;Disable writes
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01BF   1895           00246 EEWriteLoop     BTFSC   EECON1,WR       ;Wait for write to complete
-01C0   2???           00247         GOTO    EEWriteLoop
-01C1   0020           00248         MOVLB   0x00    ;Bank 0
-01C2   0008           00249         return
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 26
+01C1   1895           00246 EEWriteLoop     BTFSC   EECON1,WR       ;Wait for write to complete
+01C2   2???           00247         GOTO    EEWriteLoop
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 26
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+01C3   0020           00248         MOVLB   0x00    ;Bank 0
+01C4   0008           00249         return
                       00250 ;
                       00251 ;=======================================================================================================
                             ==
@@ -1530,14 +1532,14 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00296         MOVF    Ser_In_InPtr,W
                       00297         ANDLW   0x1F
                       00298         INCF    Ser_In_InPtr,F
-                      00299         ADDLW   low Ser_In_Buff
-                      00300         MOVWF   FSR0
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 27
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 27
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+                      00299         ADDLW   low Ser_In_Buff
+                      00300         MOVWF   FSR0
                       00301         MOVLW   high Ser_In_Buff
                       00302         MOVWF   FSR0H
                       00303         MOVF    Param78,W
@@ -1589,14 +1591,14 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00349 StoreSerOut     MOVWF   Param78
                       00350         MOVLB   Ser_Buff_Bank
                       00351         INCF    Ser_Out_Bytes,F
-                      00352 ;       
-                      00353         MOVF    Ser_Out_InPtr,W
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 28
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 28
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
+                      00352 ;       
+                      00353         MOVF    Ser_Out_InPtr,W
                       00354         ANDLW   0x1F
                       00355         INCF    Ser_Out_InPtr,F
                       00356         ADDLW   low Ser_Out_Buff
@@ -1647,23 +1649,23 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00401         ENDIF
                       00402 ;
                       00403 ;
-                      00459 ;
-                      00460 ;=========================================================================================
-                      00461 ;=========================================================================================
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 29
+                      00461 ;
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 29
 
 F1822 Macros
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00462 ;
-                      00463 ;
+                      00462 ;=========================================================================================
+                      00463 ;=========================================================================================
                       00464 ;
                       00465 ;
+                      00466 ;
+                      00467 ;
 Message[303]: Program word too large.  Truncated to core size. (EFA4)
 Message[303]: Program word too large.  Truncated to core size. (DEFF)
-2FA4 1EFF             00466         END
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 30
+2FA4 1EFF             00468         END
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 30
 
 F1822 Macros
 SYMBOL TABLE
@@ -1722,7 +1724,7 @@ BRG16                             00000003
 BRGH                              00000002
 BRG_VAL                           00000027
 BSR                               00000008
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 31
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 31
 
 F1822 Macros
 SYMBOL TABLE
@@ -1781,7 +1783,7 @@ CKE                               00000006
 CKP                               00000004
 CLKIN                             00000005
 CLKOUT                            00000004
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 32
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 32
 
 F1822 Macros
 SYMBOL TABLE
@@ -1817,8 +1819,8 @@ CPSRNG1                           00000003
 CREN                              00000004
 CSRC                              00000007
 C_SHAD                            00000000
-ClearRam                          0000016A
-ClearRam_L2                       00000175
+ClearRam                          0000016C
+ClearRam_L2                       00000177
 DACCON0                           00000118
 DACCON1                           00000119
 DACEN                             00000007
@@ -1839,22 +1841,22 @@ DC_SHAD                           00000001
 DHEN                              00000000
 D_NOT_A                           00000005
 DebounceTime                      0000000A
-DecTimer                          00000181
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 33
+DecTimer                          00000183
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 33
 
 F1822 Macros
 SYMBOL TABLE
   LABEL                             VALUE 
 
-DecTimer1                         00000180
-DecTimer2                         0000017E
-DecTimer3                         0000017C
-DecTimer4                         0000017A
-Delay100uS                        0000019B
-Delay10uS                         00000199
-Delay40uS                         0000019D
-DelayWuS                          0000019E
-DelayWuS_Loop                     0000019F
+DecTimer1                         00000182
+DecTimer2                         00000180
+DecTimer3                         0000017E
+DecTimer4                         0000017C
+Delay100uS                        0000019D
+Delay10uS                         0000019B
+Delay40uS                         0000019F
+DelayWuS                          000001A0
+DelayWuS_Loop                     000001A1
 ECCP1AS                           00000295
 EEADR                             00000191
 EEADRH                            00000192
@@ -1869,11 +1871,11 @@ EEDataTemp                        00000025
 EEIE                              00000004
 EEIF                              00000004
 EEPGD                             00000007
-EERead                            000001A3
-EEReadW                           000001A2
-EEWrite                           000001AD
-EEWriteLoop                       000001BF
-EEWriteW                          000001AC
+EERead                            000001A5
+EEReadW                           000001A4
+EEWrite                           000001AF
+EEWriteLoop                       000001C1
+EEWriteW                          000001AE
 F                                 00000001
 FERR                              00000002
 FLT0                              00000002
@@ -1899,7 +1901,7 @@ GIE                               00000007
 GO                                00000001
 GO_NOT_DONE                       00000001
 HFIOFL                            00000003
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 34
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 34
 
 F1822 Macros
 SYMBOL TABLE
@@ -1913,7 +1915,7 @@ I2C_ARRAY_RX                      000000AC
 I2C_ARRAY_TX                      000000A0
 I2C_Addr_Pending                  GFlags,6
 I2C_DataInturp                    00000141
-I2C_DataSender                    00000156
+I2C_DataSender                    00000157
 I2C_GetSlaveAddr                  000000F5
 I2C_INIT_MSTR_REC                 GFlags2,4
 I2C_INIT_TRANS_DATA               GFlags,7
@@ -1958,7 +1960,7 @@ I2C_Write_TXData                  000000B8
 INDEX_I2C                         00000073
 INDF0                             00000000
 INDF1                             00000001
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 35
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 35
 
 F1822 Macros
 SYMBOL TABLE
@@ -2017,7 +2019,7 @@ LATA                              0000010C
 LATA0                             00000000
 LATA1                             00000001
 LATA2                             00000002
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 36
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 36
 
 F1822 Macros
 SYMBOL TABLE
@@ -2076,7 +2078,7 @@ NOT_PD                            00000003
 NOT_POR                           00000001
 NOT_RI                            00000002
 NOT_RMCLR                         00000003
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 37
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 37
 
 F1822 Macros
 SYMBOL TABLE
@@ -2135,7 +2137,7 @@ Param70                           00000070
 Param71                           00000071
 Param72                           00000072
 Param77                           00000077
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 38
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 38
 
 F1822 Macros
 SYMBOL TABLE
@@ -2194,7 +2196,7 @@ SP1BRGH                           0000019C
 SP1BRGL                           0000019B
 SPBRG                             0000019B
 SPBRGH                            0000019C
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 39
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 39
 
 F1822 Macros
 SYMBOL TABLE
@@ -2253,7 +2255,7 @@ STATUS_SHAD                       00000FE4
 STKOVF                            00000007
 STKPTR                            00000FED
 STKUNF                            00000006
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 40
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 40
 
 F1822 Macros
 SYMBOL TABLE
@@ -2312,7 +2314,7 @@ TMR0IF                            00000002
 TMR0SE                            00000004
 TMR0Val                           000000B2
 TMR1                              00000016
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 41
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 41
 
 F1822 Macros
 SYMBOL TABLE
@@ -2358,10 +2360,10 @@ TXIE                              00000004
 TXIF                              00000004
 TXREG                             0000019A
 TXSTA                             0000019E
-TestT1_Zero                       00000196
-TestT2_Zero                       00000193
-TestT3_Zero                       00000190
-TestT4_Zero                       0000018D
+TestT1_Zero                       00000198
+TestT2_Zero                       00000195
+TestT3_Zero                       00000192
+TestT4_Zero                       0000018F
 TestTimerIsZero                   
 Timer1Hi                          00000027
 Timer1Lo                          00000026
@@ -2371,7 +2373,7 @@ Timer3Hi                          0000002B
 Timer3Lo                          0000002A
 Timer4Hi                          0000002D
 Timer4Lo                          0000002C
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 42
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 42
 
 F1822 Macros
 SYMBOL TABLE
@@ -2430,7 +2432,7 @@ _FOSC_ECM                         0000FFFE
 _FOSC_EXTRC                       0000FFFB
 _FOSC_HS                          0000FFFA
 _FOSC_INTOSC                      0000FFFC
-MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-3-2015  16:35:12         PAGE 43
+MPASM 5.64  /PROJECTS/I2CTEST/TESTI2CMASTER.   11-5-2015  17:29:08         PAGE 43
 
 F1822 Macros
 SYMBOL TABLE

@@ -1,12 +1,12 @@
 MPLINK 5.08, LINKER
-Linker Map File - Created Tue Nov  3 16:35:12 2015
+Linker Map File - Created Thu Nov  5 17:29:08 2015
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000006
-                   .org_1       code   0x000004    program   0x00037e
-                   .cinit    romdata   0x0001c3    program   0x000004
+                   .org_1       code   0x000004    program   0x000382
+                   .cinit    romdata   0x0001c5    program   0x000004
                   .idlocs       code   0x008000    program   0x000008
 .config_8007_BUILD/DEFAULT/PRODUCTION/_EXT/18       code   0x008007    program   0x000002
 .config_8008_BUILD/DEFAULT/PRODUCTION/_EXT/18       code   0x008008    program   0x000002
@@ -18,35 +18,35 @@ Linker Map File - Created Tue Nov  3 16:35:12 2015
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000002      
-                            0x000004    0x0001c4      
+                            0x000004    0x0001c6      
                             0x008000    0x008003      
                             0x008007    0x008008      
-            458 out of 2311 program addresses used, program memory utilization is 19%
+            460 out of 2311 program addresses used, program memory utilization is 19%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                 ClearRam   0x00016a    program     static /Projects/I2CTest/F1822_Common.inc
-              ClearRam_L2   0x000175    program     static /Projects/I2CTest/F1822_Common.inc
-                 DecTimer   0x000181    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer1   0x000180    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer2   0x00017e    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer3   0x00017c    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer4   0x00017a    program     static /Projects/I2CTest/F1822_Common.inc
-               Delay100uS   0x00019b    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay10uS   0x000199    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay40uS   0x00019d    program     static /Projects/I2CTest/F1822_Common.inc
-                 DelayWuS   0x00019e    program     static /Projects/I2CTest/F1822_Common.inc
-            DelayWuS_Loop   0x00019f    program     static /Projects/I2CTest/F1822_Common.inc
-                   EERead   0x0001a3    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEReadW   0x0001a2    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEWrite   0x0001ad    program     static /Projects/I2CTest/F1822_Common.inc
-              EEWriteLoop   0x0001bf    program     static /Projects/I2CTest/F1822_Common.inc
-                 EEWriteW   0x0001ac    program     static /Projects/I2CTest/F1822_Common.inc
+                 ClearRam   0x00016c    program     static /Projects/I2CTest/F1822_Common.inc
+              ClearRam_L2   0x000177    program     static /Projects/I2CTest/F1822_Common.inc
+                 DecTimer   0x000183    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer1   0x000182    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer2   0x000180    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer3   0x00017e    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer4   0x00017c    program     static /Projects/I2CTest/F1822_Common.inc
+               Delay100uS   0x00019d    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay10uS   0x00019b    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay40uS   0x00019f    program     static /Projects/I2CTest/F1822_Common.inc
+                 DelayWuS   0x0001a0    program     static /Projects/I2CTest/F1822_Common.inc
+            DelayWuS_Loop   0x0001a1    program     static /Projects/I2CTest/F1822_Common.inc
+                   EERead   0x0001a5    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEReadW   0x0001a4    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEWrite   0x0001af    program     static /Projects/I2CTest/F1822_Common.inc
+              EEWriteLoop   0x0001c1    program     static /Projects/I2CTest/F1822_Common.inc
+                 EEWriteW   0x0001ae    program     static /Projects/I2CTest/F1822_Common.inc
            I2C_DataInturp   0x000141    program     static /Projects/I2CTest/TestI2CMaster.asm
-           I2C_DataSender   0x000156    program     static /Projects/I2CTest/TestI2CMaster.asm
+           I2C_DataSender   0x000157    program     static /Projects/I2CTest/TestI2CMaster.asm
          I2C_GetSlaveAddr   0x0000f5    program     static /Projects/I2CTest/I2C_MASTER.inc
                  I2C_READ   0x0000cf    program     static /Projects/I2CTest/I2C_MASTER.inc
                I2C_READ_1   0x0000d8    program     static /Projects/I2CTest/I2C_MASTER.inc
@@ -86,10 +86,10 @@ Linker Map File - Created Tue Nov  3 16:35:12 2015
                  MainLoop   0x00013c    program     static /Projects/I2CTest/TestI2CMaster.asm
           SystemBlinkDone   0x000018    program     static /Projects/I2CTest/TestI2CMaster.asm
           SystemBlink_end   0x00001b    program     static /Projects/I2CTest/TestI2CMaster.asm
-              TestT1_Zero   0x000196    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT2_Zero   0x000193    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT3_Zero   0x000190    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT4_Zero   0x00018d    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT1_Zero   0x000198    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT2_Zero   0x000195    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT3_Zero   0x000192    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT4_Zero   0x00018f    program     static /Projects/I2CTest/F1822_Common.inc
              ToggleSysLED   0x00002c    program     static /Projects/I2CTest/TestI2CMaster.asm
              _.org_1_0048   0x000048    program     static /Projects/I2CTest/I2C_MASTER.inc
              _.org_1_0072   0x000072    program     static /Projects/I2CTest/I2C_MASTER.inc
@@ -146,28 +146,28 @@ Linker Map File - Created Tue Nov  3 16:35:12 2015
                     start   0x000117    program     static /Projects/I2CTest/TestI2CMaster.asm
                  MainLoop   0x00013c    program     static /Projects/I2CTest/TestI2CMaster.asm
            I2C_DataInturp   0x000141    program     static /Projects/I2CTest/TestI2CMaster.asm
-           I2C_DataSender   0x000156    program     static /Projects/I2CTest/TestI2CMaster.asm
-                 ClearRam   0x00016a    program     static /Projects/I2CTest/F1822_Common.inc
-              ClearRam_L2   0x000175    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer4   0x00017a    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer3   0x00017c    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer2   0x00017e    program     static /Projects/I2CTest/F1822_Common.inc
-                DecTimer1   0x000180    program     static /Projects/I2CTest/F1822_Common.inc
-                 DecTimer   0x000181    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT4_Zero   0x00018d    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT3_Zero   0x000190    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT2_Zero   0x000193    program     static /Projects/I2CTest/F1822_Common.inc
-              TestT1_Zero   0x000196    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay10uS   0x000199    program     static /Projects/I2CTest/F1822_Common.inc
-               Delay100uS   0x00019b    program     static /Projects/I2CTest/F1822_Common.inc
-                Delay40uS   0x00019d    program     static /Projects/I2CTest/F1822_Common.inc
-                 DelayWuS   0x00019e    program     static /Projects/I2CTest/F1822_Common.inc
-            DelayWuS_Loop   0x00019f    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEReadW   0x0001a2    program     static /Projects/I2CTest/F1822_Common.inc
-                   EERead   0x0001a3    program     static /Projects/I2CTest/F1822_Common.inc
-                 EEWriteW   0x0001ac    program     static /Projects/I2CTest/F1822_Common.inc
-                  EEWrite   0x0001ad    program     static /Projects/I2CTest/F1822_Common.inc
-              EEWriteLoop   0x0001bf    program     static /Projects/I2CTest/F1822_Common.inc
+           I2C_DataSender   0x000157    program     static /Projects/I2CTest/TestI2CMaster.asm
+                 ClearRam   0x00016c    program     static /Projects/I2CTest/F1822_Common.inc
+              ClearRam_L2   0x000177    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer4   0x00017c    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer3   0x00017e    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer2   0x000180    program     static /Projects/I2CTest/F1822_Common.inc
+                DecTimer1   0x000182    program     static /Projects/I2CTest/F1822_Common.inc
+                 DecTimer   0x000183    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT4_Zero   0x00018f    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT3_Zero   0x000192    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT2_Zero   0x000195    program     static /Projects/I2CTest/F1822_Common.inc
+              TestT1_Zero   0x000198    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay10uS   0x00019b    program     static /Projects/I2CTest/F1822_Common.inc
+               Delay100uS   0x00019d    program     static /Projects/I2CTest/F1822_Common.inc
+                Delay40uS   0x00019f    program     static /Projects/I2CTest/F1822_Common.inc
+                 DelayWuS   0x0001a0    program     static /Projects/I2CTest/F1822_Common.inc
+            DelayWuS_Loop   0x0001a1    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEReadW   0x0001a4    program     static /Projects/I2CTest/F1822_Common.inc
+                   EERead   0x0001a5    program     static /Projects/I2CTest/F1822_Common.inc
+                 EEWriteW   0x0001ae    program     static /Projects/I2CTest/F1822_Common.inc
+                  EEWrite   0x0001af    program     static /Projects/I2CTest/F1822_Common.inc
+              EEWriteLoop   0x0001c1    program     static /Projects/I2CTest/F1822_Common.inc
              I2C_ARRAY_TX   0x0000a0       data     static /Projects/I2CTest/TestI2CMaster.asm
              I2C_ARRAY_RX   0x0000ac       data     static /Projects/I2CTest/TestI2CMaster.asm
 
