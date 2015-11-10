@@ -1,10 +1,10 @@
 ;=========================================================================================
-; PIC16F1822
+; PIC12F1822
 ; I2C SLAVE DRIVER CODE
 ;
 ;    Filename:      I2C SLAVE.inc
-;    Date:          11/5/2015
-;    File Version:  1.0.4
+;    Date:          11/9/2015
+;    File Version:  1.0.5
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -16,13 +16,14 @@
 ;
 ;    History:
 ;
-; 1.0.4 11/5/2015	Optimized some code. Added AHEN=DHEN=1 clock stretching.
-; 1.0.3 11/4/2015	Added ACK to R_Data for partial buffer read support.
+; 1.0.5  11/9/2015	Added watchdog to recover from wiring glitch.
+; 1.0.4  11/5/2015	Optimized some code. Added AHEN=DHEN=1 clock stretching.
+; 1.0.3  11/4/2015	Added ACK to R_Data for partial buffer read support.
 ;	Added PCIE (Stop causes interrupt) to end write 
 ;	 before all RX_ELEMENTS received.
-; 1.0.2 4/25/2015	First woring version
+; 1.0.2  4/25/2015	First woring version
 ; 1.0.1  9/4/2014	Modified for 12F1822
-; 1.0   11/23/2013	Adapted from AN734C
+; 1.0    11/23/2013	Adapted from AN734C
 ;
 ; *** Adapted from AN734C ****
 ; PIC16F1937 
@@ -77,6 +78,10 @@
 ;I2C_ARRAY_TX	RES	TX_ELEMENTS	; array to transmit to master
 ;I2C_ARRAY_RX 	RES	RX_ELEMENTS 	; array to receive from master
 ;	
+;	if useI2CWDT
+;TimerI2C	EQU	Timer1Lo
+;	endif
+;
 ;=========================================================================================
 ;----------------------------------- interrupt service routines --------------------------
 ;
@@ -119,6 +124,18 @@
 ;	call	Init_I2C	; set up uC
 ;
 ;=========================================================================================
+;=========================================================================================
+; I2C Idle routine, only needed if useI2CWDT is used
+;=========================================================================================
+; Call from main loop
+;
+I2C_Idle	movlb	0
+	movf	TimerI2C,F
+	SKPZ
+	return
+;
+; fall thru to Init_I2C
+;
 ;-----------------------------------------------------------------------------------------
 ;	Initialize: Sets up register values 
 ;-----------------------------------------------------------------------------------------
@@ -151,8 +168,12 @@ Init_I2C_L2	movwi	FSR1++
 	goto	Init_I2C_L2
 ;
 ;I2C set up
+	clrf	INDEX_I2C	; index used to point to array location
+	clrf	GFlags
+;
 	banksel	SSP1STAT
 	bsf	SSP1STAT,SMP	; Slew rate control disabled for standard speed mode
+	clrf	SSP1CON1	;Reset SSP
 	movlw	b'00110110'	; Enable serial port, I2C slave mode, 7-bit address
 	movwf	SSP1CON1
 	bsf	SSP1CON2,SEN	; enable clock stretching
@@ -181,6 +202,10 @@ Init_I2C_L2	movwi	FSR1++
 ;=========================================================================================
 ;
 I2C_ISR:
+	if useI2CWDT
+	BSF	TimerI2C,7	;Kick the dog
+	endif
+;
 	bcf 	PIR1,SSP1IF	; clear the SSP interrupt flag
 	banksel	SSP1STAT						
 	btfss	SSP1STAT,R_NOT_W	; is it a master read:

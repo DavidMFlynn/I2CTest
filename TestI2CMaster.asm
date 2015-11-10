@@ -1,8 +1,8 @@
 ;====================================================================================================
 ;
 ;   Filename:	TestI2CMaster.asm
-;   Date:	9/7/2015
-;   File Version:	1.0d2
+;   Date:	11/9/2015
+;   File Version:	1.0d3
 ;
 ;    Author:	David M. Flynn
 ;    Company:	Oxford V.U.E., Inc.
@@ -14,6 +14,7 @@
 ;
 ;    History:
 ;
+; 1.0d3  11/9/2015	Added watchdog to recover from wiring glitch.
 ; 1.0d2  9/7/2015	Multi-Slave support.
 ; 1.0d1  4/23/2015	First code
 ;
@@ -39,7 +40,7 @@
 ;
 ;  Pin 1 VDD (+5V)		+5V
 ;  Pin 2 RA5		LED_1 (Active high output)
-;  Pin 3 RA4		System LED Active Low/Center switch Active Low
+;  Pin 3 RA4		System LED (Active Low)
 ;  Pin 4 RA3/MCLR*/Vpp (Input only)	SW_1  (Active Low input)
 ;  Pin 5 RA2		SDA
 ;  Pin 6 RA1/ICSPCLK		SCL
@@ -85,6 +86,7 @@
 ;
 	constant	oldCode=0
 	constant	useRS232=0
+	constant	useI2CWDT=1
 ;
 #Define	_C	STATUS,C
 #Define	_Z	STATUS,Z
@@ -143,13 +145,10 @@ DebounceTime	EQU	d'10'
 ;
 	Timer1Lo		;1st 16 bit timer
 	Timer1Hi		; one second RX timeiout
-;
 	Timer2Lo		;2nd 16 bit timer
 	Timer2Hi		;
-;
 	Timer3Lo		;3rd 16 bit timer
 	Timer3Hi		;GP wait timer
-;
 	Timer4Lo		;4th 16 bit timer
 	Timer4Hi		; debounce timer
 ;
@@ -159,7 +158,9 @@ DebounceTime	EQU	d'10'
 ;
 	endc
 ;
-;TimerI2C	EQU	Timer1Lo
+	if useI2CWDT
+TimerI2C	EQU	Timer1Lo
+	endif
 ;
 ;
 I2C_SlaveCount	EQU	.3

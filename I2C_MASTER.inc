@@ -1,10 +1,10 @@
 ;=========================================================================================
-; PIC16F1822
+; PIC12F1822
 ; I2C MASTER DRIVER CODE
 ;
 ;    Filename:      I2C MASTER.inc
-;    Date:          11/3/2015
-;    File Version:  1.0.4
+;    Date:          11/9/2015
+;    File Version:  1.0.5
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -12,10 +12,11 @@
 ;    Web Site:      http://www.oxfordvue.com/
 ;
 ;=========================================================================================
-;   I2C Master Driver Code for PIC16F1822
+;   I2C Master Driver Code for PIC12F1822
 ;
 ;    History:
 ;
+; 1.0.5  11/9/2015	Added watchdog to recover from wiring glitch.
 ; 1.0.4  11/4/2015	Bug fixes.
 ; 1.0.3  9/7/2015	Added multi-Slave.
 ; 1.0.2  4/25/2015	First woring version, single master to single slave, no error checking.
@@ -136,6 +137,10 @@
 ;#Define	I2C_NewDataToTX	GFlags3,1	; set in main to cause send now
 ;	udata
 ;
+;	if useI2CWDT
+;TimerI2C	EQU	Timer1Lo
+;	endif
+;
 ; array to transmit to slaves
 ;I2C_ARRAY_TX	res	RX_ELEMENTS*I2C_SlaveCount
 ; array to receive from slaves
@@ -189,7 +194,16 @@
 ;	call	Idle_I2C
 ;=========================================================================================
 ;
-Idle_I2C	btfss	I2C_Write_Seq_Active	;Is it a write sequence?
+Idle_I2C	movlb	0
+;
+	if useI2CWDT
+	movf	TimerI2C,W	;Dog dead?
+	IORWF	TimerI2C+1,W
+	SKPNZ
+	goto	Init_I2C	; Yes, get a new one.
+	endif
+;
+	btfss	I2C_Write_Seq_Active	;Is it a write sequence?
 	goto	Idle_I2C_Read	; No, try read
 	btfss	I2C_Init_Start	;Is start bit set?
 	goto	Idle_I2C_Write_1	; No, check if transmission ready
@@ -276,6 +290,10 @@ Idle_I2C_Read_4	btfss	I2C_REC_COMPLETE	; is bit set?
 	bsf	SSP1CON2,PEN	; set stop bit to begin stop sequence
 	BTFSC	SSP1CON2,PEN	; has stop bit been sent?
 	GOTO	$-1	; no, loop back to test
+	if useI2CWDT
+	movlb	0
+	BSF	TimerI2C+1,1	;Kick the dog
+	endif
 	goto	Idle_I2C_B0Rtn
 ;
 ;==============================================
@@ -304,8 +322,7 @@ Init_I2C:
 	movlw	RX_ELEMENTS*I2C_SlaveCount
 	movwf	INDEX_I2C	;used as count not index
 	movlw	I2C_TX_Init_Val
-Init_I2C_L1	movwf	INDF1
-	incf	FSR1L,F
+Init_I2C_L1	movwi	FSR1++
 	decfsz	INDEX_I2C,F
 	goto	Init_I2C_L1
 ;
@@ -319,8 +336,7 @@ Init_I2C_L1	movwf	INDF1
 	movlw	RX_ELEMENTS*I2C_SlaveCount
 	movwf	INDEX_I2C	;used as count not index
 	movlw	I2C_RX_Init_Val
-Init_I2C_L2	movwf	INDF1
-	incf	FSR1L,F
+Init_I2C_L2	movwi	FSR1++
 	decfsz	INDEX_I2C,F
 	goto	Init_I2C_L2
 ;
@@ -331,6 +347,7 @@ Init_I2C_L2	movwf	INDF1
 ;I2C set up
 	BANKSEL	SSP1STAT
 	bsf	SSP1STAT,SMP	; Slew rate control disabled for standard speed mode
+	clrf	SSP1CON1
 	movlw	b'00101000'	; Enable serial port, I2C master mode, 7-bit address
 	movwf	SSP1CON1
 	bsf	SSP1CON3,SDAHT	; Minimum of 300 ns hold time
@@ -343,6 +360,11 @@ Init_I2C_L2	movwf	INDF1
 	movlb	0x00	; banksel PIR1
 	bcf	PIR1,SSP1IF	; clear the SSP interrupt flag
 	bcf	PIR2,BCL1IF	; clear the SSP interrupt flag
+;
+	if useI2CWDT
+	bsf	TimerI2C,7
+	endif
+;
 	return
 ;
 ;=======================================================

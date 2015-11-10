@@ -1,8 +1,8 @@
 ;====================================================================================================
 ;
 ;   Filename:	TestI2CSlave.asm
-;   Date:	11/5/2015
-;   File Version:	1.0d2
+;   Date:	11/9/2015
+;   File Version:	1.0d3
 ;
 ;    Author:	David M. Flynn
 ;    Company:	Oxford V.U.E., Inc.
@@ -14,6 +14,7 @@
 ;
 ;    History:
 ;
+; 1.0d3  11/9/2015	Added watchdog to recover from wiring glitch.
 ; 1.0d2  11/5/2015	More testing.
 ; 1.0d1  4/23/2015	First code
 ;
@@ -36,7 +37,7 @@
 ;
 ;  Pin 1 VDD (+5V)		+5V
 ;  Pin 2 RA5		LED_1 (Active high output)
-;  Pin 3 RA4		System LED Active Low/Center switch Active Low
+;  Pin 3 RA4		System LED (Active Low)
 ;  Pin 4 RA3/MCLR*/Vpp (Input only)	SW_1  (Active Low input)
 ;  Pin 5 RA2		SDA
 ;  Pin 6 RA1/ICSPCLK		SCL
@@ -83,6 +84,7 @@
 	constant	oldCode=0
 	constant	useRS232=0
 	constant	useI2CISR=1
+	constant	useI2CWDT=1
 ;
 #Define	_C	STATUS,C
 #Define	_Z	STATUS,Z
@@ -142,13 +144,10 @@ DebounceTime	EQU	d'10'
 ;
 	Timer1Lo		;1st 16 bit timer
 	Timer1Hi		; one second RX timeiout
-;
 	Timer2Lo		;2nd 16 bit timer
 	Timer2Hi		;
-;
 	Timer3Lo		;3rd 16 bit timer
 	Timer3Hi		;GP wait timer
-;
 	Timer4Lo		;4th 16 bit timer
 	Timer4Hi		; debounce timer
 ;
@@ -156,6 +155,9 @@ DebounceTime	EQU	d'10'
 ;
 	endc
 ;
+	if useI2CWDT
+TimerI2C	EQU	Timer1Lo
+	endif
 ;
 I2C_ADDRESS	EQU	0x30	; Slave address
 TX_ELEMENTS	EQU	.8	; number of allowable array elements
@@ -381,6 +383,10 @@ MainLoop	CLRWDT
 	CALL	I2C_DataInturp
 ;
 	CALL	I2C_DataSender
+;
+	if useI2CWDT
+	CALL	I2C_Idle
+	endif
 ;
 	if useI2CISR==0
 	MOVLB	0x00
