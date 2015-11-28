@@ -3,8 +3,8 @@
 ; I2C SLAVE DRIVER CODE
 ;
 ;    Filename:      I2C SLAVE.inc
-;    Date:          11/9/2015
-;    File Version:  1.0.5
+;    Date:          11/28/2015
+;    File Version:  1.0.6
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -16,6 +16,7 @@
 ;
 ;    History:
 ;
+; 1.0.6  11/28/2015	Updated some comments.
 ; 1.0.5  11/9/2015	Added watchdog to recover from wiring glitch.
 ; 1.0.4  11/5/2015	Optimized some code. Added AHEN=DHEN=1 clock stretching.
 ; 1.0.3  11/4/2015	Added ACK to R_Data for partial buffer read support.
@@ -40,6 +41,11 @@
 	ifndef useI2CISR
 	constant	useI2CISR=1
 	endif
+;
+	ifndef useI2CWDT
+	constant	useI2CWDT=0
+	endif
+;
 ;=========================================================================================
 ;=========================================================================================
 ; What happens next:
@@ -49,8 +55,8 @@
 ; Routines:
 ;
 ; Init_I2C	initial setup, call once before starting main event loop
-; I2C_READ
-; I2C_WRITE
+; I2C_Idle	Call from main loop if useI2CWDT=1, uses TimerI2C for watchdog.
+; I2C_ISR	Call when PIR1,SSP1IF is set.
 ;
 ;=========================================================================================
 ;
@@ -107,6 +113,7 @@
 ;IRQ_5_End:
 ;
 ;=========================================================================================
+;Macros Used by I2C_Slave.inc normally found in Macros.inc
 ;
 ;LOADFSR1	macro 	ADDRESS,INDEX 	; ADDRESS = I2C_ARRAY, INDEX = INDEX_I2C			
 ;	movlw 	low ADDRESS 	; load address 						
@@ -124,6 +131,7 @@
 ;	call	Init_I2C	; set up uC
 ;
 ;=========================================================================================
+	if useI2CWDT
 ;=========================================================================================
 ; I2C Idle routine, only needed if useI2CWDT is used
 ;=========================================================================================
@@ -136,13 +144,14 @@ I2C_Idle	movlb	0
 ;
 ; fall thru to Init_I2C
 ;
+	endif
 ;-----------------------------------------------------------------------------------------
 ;	Initialize: Sets up register values 
 ;-----------------------------------------------------------------------------------------
 ; fill the RX and TX arrays with I2C_TX_Init_Val, I2C_RX_Init_Val
 ;
 Init_I2C:
-; for J=0 to RX_ELEMENTS-1
+; for J=0 to TX_ELEMENTS-1
 ;  I2C_ARRAY_TX(J)=I2C_TX_Init_Val
 	movlw	low I2C_ARRAY_TX
 	movwf	FSR1L
@@ -156,6 +165,8 @@ Init_I2C_L1	movwi	FSR1++
 	decfsz	INDEX_I2C,F
 	goto	Init_I2C_L1
 ;
+; for J=0 to RX_ELEMENTS-1
+;  I2C_ARRAY_RX(J)=I2C_RX_Init_Val
 	movlw	low I2C_ARRAY_RX
 	movwf	FSR1L
 	movlw	high I2C_ARRAY_RX
