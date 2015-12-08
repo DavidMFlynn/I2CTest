@@ -3,8 +3,8 @@
 ; I2C MASTER DRIVER CODE
 ;
 ;    Filename:      I2C MASTER.inc
-;    Date:          11/9/2015
-;    File Version:  1.0.5
+;    Date:          12/5/2015
+;    File Version:  1.0.6
 ;
 ;    Author:        David M. Flynn
 ;    Company:       Oxford V.U.E., Inc.
@@ -16,6 +16,7 @@
 ;
 ;    History:
 ;
+; 1.0.6  12/5/2015	Fixed a bug RX_ELEMENTS was used in place of TX_ELEMENTS
 ; 1.0.5  11/9/2015	Added watchdog to recover from wiring glitch.
 ; 1.0.4  11/4/2015	Bug fixes.
 ; 1.0.3  9/7/2015	Added multi-Slave.
@@ -37,12 +38,12 @@
 ;=========================================================================================
 ; Options
 ;
-;   I2C_ADDRESS and RX_ELEMENTS must be set and be the same in the slave driver.
+;   I2C_ADDRESS, TX_ELEMENTS and RX_ELEMENTS must be set and be the same in the slave driver.
 ;
 ;=========================================================================================
 ;=========================================================================================
 ; What happens next:
-;  Sends and receives RX_ELEMENTS bytes of data to/from the slave
+;  Sends and receives TX_ELEMENTS/RX_ELEMENTS bytes of data to/from the slave
 ;
 ;INITIALIZE_I2C
 ; start write seq.	Set I2C_Write_Seq_Active, I2C_Init_Start, I2C_Addr_Pending, INDEX_I2C=0
@@ -53,7 +54,7 @@
 ;Idle_I2C
 ; 	clr I2C_INIT_TRANS_DATA set I2C_TRANS_DATA, I2C_TXLocked
 ;I2C_WRITE
-; send I2C_ARRAY_TX,INDEX_I2C++ until RX_ELEMENTS bytes sent
+; send I2C_ARRAY_TX,INDEX_I2C++ until TX_ELEMENTS bytes sent
 ;	clr I2C_TRANS_DATA set I2C_TRANS_COMPLETE
 ;Idle_I2C
 ; send stop bit	clr I2C_TRANS_COMPLETE set I2C_Stop_Asserted
@@ -142,7 +143,7 @@
 ;	endif
 ;
 ; array to transmit to slaves
-;I2C_ARRAY_TX	res	RX_ELEMENTS*I2C_SlaveCount
+;I2C_ARRAY_TX	res	TX_ELEMENTS*I2C_SlaveCount
 ; array to receive from slaves
 ;I2C_ARRAY_RX	res	RX_ELEMENTS*I2C_SlaveCount	
 ;
@@ -312,14 +313,14 @@ I2C_StartSeq:
 ; Ram used: none
 ;
 Init_I2C:
-; for J=0 to RX_ELEMENTS-1
+; for J=0 to TX_ELEMENTS-1
 ;  I2C_ARRAY_TX(J)=I2C_TX_Init_Val
 	movlw	low I2C_ARRAY_TX
 	movwf	FSR1L
 	movlw	high I2C_ARRAY_TX
 	movwf	FSR1H
 ;
-	movlw	RX_ELEMENTS*I2C_SlaveCount
+	movlw	TX_ELEMENTS*I2C_SlaveCount
 	movwf	INDEX_I2C	;used as count not index
 	movlw	I2C_TX_Init_Val
 Init_I2C_L1	movwi	FSR1++
@@ -410,7 +411,7 @@ I2C_Write	btfsc	I2C_TRANS_COMPLETE	; is transmission complete?
 I2C_Write_TXData	btfss	I2C_TRANS_DATA	; is transmission complete?
 	goto	I2C_Write_End	; if so, go finish sequence
 ;
-	movlw	RX_ELEMENTS	; load array elements value
+	movlw	TX_ELEMENTS	; load array elements value
 	subwf	INDEX_I2C,W	; if Z = 1, subtract index from number of elements
 	btfsc	_C	; did a carry occur after subtraction?
 	goto	I2C_Write_1	; if so, array limit reached
@@ -526,7 +527,7 @@ I2C_Set_TX_PTR_E2	movf	INDEX_I2C,W
 	SKPNZ
 	return
 ;
-I2C_Set_TX_PTR_L1	movlw	RX_ELEMENTS
+I2C_Set_TX_PTR_L1	movlw	TX_ELEMENTS
 	addwf	FSR1L,F
 	clrw
 	addwfc	FSR1H,F
