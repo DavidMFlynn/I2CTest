@@ -188,7 +188,7 @@ Init_I2C_L2	movwi	FSR1++
 	bsf	SSP1CON3,AHEN	; Enable address holding, CKP must be set after each byte
 	bsf	SSP1CON3,DHEN	; Enable data holding
 	movlb	0
-	movf	I2CAddr	; load the slave address
+	movf	I2CAddr,W	; load the slave address
 	BANKSEL	SSP1ADD
 	movwf	SSP1ADD
 ;
